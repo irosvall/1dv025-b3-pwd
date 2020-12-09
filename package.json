@@ -1,0 +1,49 @@
+{
+  "name": "assignment-b3-pwd",
+  "version": "1.0.0",
+  "description": "1DV025 - Examination Assignment Module B - PWD",
+  "type": "module",
+  "browser": "js/index.js",
+  "scripts": {
+    "start": "snowpack dev",
+    "build": "snowpack build",
+    "lint": "npx eslint ./src || exit 0",
+    "lint:fix": "npx eslint ./src --fix || exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.lnu.se/1dv025/templates/assignment-b3-pwd"
+  },
+  "contributors": [
+    "Johan Leitet <johan.leitet@lnu.se>",
+    "Mats Loock <mats.loock@lnu.se>"
+  ],
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "@lnu/eslint-config": "^1.1.0",
+    "chai": "^4.2.0",
+    "eslint": "^7.9.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jsdoc": "^30.5.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "snowpack": "^2.11.1"
+  },
+  "eslintConfig": {
+    "extends": "@lnu"
+  },
+  "snowpack": {
+    "scripts": {
+      "run:info": "echo Press Ctrl+C to terminate"
+    },
+    "mount": {
+      "public": "/",
+      "src": "/js"
+    },
+    "devOptions": {
+      "bundle": false
+    }
+  }
+}
