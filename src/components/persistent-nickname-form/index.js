@@ -74,20 +74,54 @@ customElements.define('persistent-nickname-form',
       // append the template to the shadow root.
       this.attachShadow({ mode: 'open' })
         .appendChild(template.content.cloneNode(true))
+
+      /**
+       * The user's nickname.
+       *
+       * @type {string}
+       */
+      this.nickname = undefined
+
+      /* ------------HTML ELEMENTS----------- */
+
+      /**
+       * The form element for submitting the nickname.
+       *
+       * @type {HTMLElement}
+       */
+      this._nicknameForm = this.shadowRoot.querySelector('#nicknameForm')
+
+      /**
+       * The input element to write in a nickname.
+       *
+       * @type {HTMLElement}
+       */
+      this._nicknameInput = this.shadowRoot.querySelector('#nicknameInput')
+
+      /* ------------EVENT HANDLERS----------- */
+
+      /**
+       * Handles submit events for when the user submits its nickname.
+       *
+       * @param {Event} event - The submit event.
+       */
+      this._onNicknameSubmit = event => {
+        this._handleNickname(event, this._nicknameInput.value)
+      }
     }
 
     /**
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
-
+      this._nicknameForm.addEventListener('submit', this._onNicknameSubmit)
     }
 
     /**
      * Called after the element has been removed from the DOM.
      */
     disconnectedCallback () {
-
+      this._nicknameForm.removeEventListener('submit', this._onNicknameSubmit)
     }
   }
 )
