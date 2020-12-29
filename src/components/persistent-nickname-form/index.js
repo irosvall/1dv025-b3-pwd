@@ -40,6 +40,10 @@ template.innerHTML = `
       cursor: pointer;
       border-radius: 10px;
     }
+
+    #errorMessage {
+      color: red;
+    }
   </style>
 
   <form id="nicknameForm">
@@ -98,6 +102,13 @@ customElements.define('persistent-nickname-form',
        */
       this._nicknameInput = this.shadowRoot.querySelector('#nicknameInput')
 
+      /**
+       * A p element to display error messages when nickname is invalid.
+       *
+       * @type {HTMLElement}
+       */
+      this._errorMessage = this.shadowRoot.querySelector('#errorMessage')
+
       /* ------------EVENT HANDLERS----------- */
 
       /**
@@ -106,7 +117,35 @@ customElements.define('persistent-nickname-form',
        * @param {Event} event - The submit event.
        */
       this._onNicknameSubmit = event => {
-        this._handleNickname(event, this._nicknameInput.value)
+        event.preventDefault()
+        this.nickname = this._nicknameInput.value
+      }
+    }
+
+    /**
+     * Get the nickname.
+     *
+     * @returns {string} The nickname.
+     */
+    get nickname () {
+      return this._nickname
+    }
+
+    /**
+     * Validates and sets the nickname.
+     *
+     * @param {string} nickname - The nickname.
+     */
+    set nickname (nickname) {
+      if (nickname === undefined) {
+        this._nickname = undefined
+      } else if (nickname === '') {
+        this._errorMessage.textContent = 'Please write in a nickname'
+      } else if (nickname.length > 20) {
+        this._errorMessage.textContent = 'Your nickname can maximum be 20 characters long.'
+      } else {
+        this._nickname = nickname
+        this.dispatchEvent(new window.CustomEvent('nicknameSet', { detail: { nickname: `${this.nickname}` } }))
       }
     }
 
