@@ -11,9 +11,47 @@
 const template = document.createElement('template')
 template.innerHTML = `
   <style>
-    
+    #nicknameForm {
+      text-align: center;
+    }
+
+    #nicknameForm label {
+      display: inline-block;
+      font-size: 1.25em;
+      padding-bottom: 0.7em;
+    }
+    #nicknameForm input {
+      display: block;
+      margin: 0 auto;
+    }
+
+    #nicknameInput {
+      font-size: 1.3em;
+      padding: 0.3em 0.5em;
+    }
+
+    #submitNickname input {
+      color: white;
+      background-color: rgb(165, 165, 141);
+      font-size: 1.5em;
+      font-weight: bold;
+      margin-top: 2em;
+      padding: 0.5em 1em;
+      cursor: pointer;
+      border-radius: 10px;
+    }
   </style>
 
+  <form id="nicknameForm">
+    <div id="nicknameDiv">
+      <label for="nicknameInput">Choose your nickname that other students will see:</label>
+      <input id="nicknameInput" type="text" placeholder="Write your nickname here" autocomplete="off" autofocus>
+      <p id="errorMessage"></p>
+     </div>
+    <div id="submitNickname">
+       <input type="submit" value="Start chat">
+     </div>
+  </form>
 `
 
 /**
