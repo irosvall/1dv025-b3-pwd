@@ -20,6 +20,12 @@ template.innerHTML = `
 
   <persistent-nickname-form></persistent-nickname-form>
   <div id="chat">
+    <div id="chatWindow"></div>
+    <form id="chatForm">
+      <label for="message">Write your message here:</label>
+      <textarea name="message" id="message" cols="30" rows="1"></textarea>
+      <input type="submit" value="Send">
+    </form>
   </div>
 `
 
