@@ -84,7 +84,7 @@ customElements.define('persistent-nickname-form',
        *
        * @type {string}
        */
-      // this.nickname = undefined
+      this.nickname = undefined
 
       /* ------------HTML ELEMENTS----------- */
 
@@ -176,7 +176,7 @@ customElements.define('persistent-nickname-form',
     }
 
     /**
-     * Dispatches the custom event 'nicknameSet'.
+     * Dispatches and creates the custom event 'nicknameSet'.
      */
     _dispatchNicknameSetEvent () {
       this.dispatchEvent(new window.CustomEvent('nicknameSet', { detail: { nickname: `${this._nickname}` } }))

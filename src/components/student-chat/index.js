@@ -83,6 +83,15 @@ customElements.define('student-chat',
       this._onNicknameSet = event => {
         this._nickname = event.detail.nickname
       }
+
+      /**
+       * Handles message events for the web socket server sends a message.
+       *
+       * @param {Event} event - The submit event.
+       */
+      this._onMessage = event => {
+        this._displayMessage(event)
+      }
     }
 
     /**
@@ -90,6 +99,7 @@ customElements.define('student-chat',
      */
     connectedCallback () {
       this._persistentNicknameForm.addEventListener('nicknameSet', this._onNicknameSet)
+      this._webSocket.removeEventListener('message', this._onMessage)
     }
 
     /**
@@ -97,6 +107,11 @@ customElements.define('student-chat',
      */
     disconnectedCallback () {
       this._persistentNicknameForm.removeEventListener('nicknameSet', this._onNicknameSet)
+      this._webSocket.removeEventListener('message', this._onMessage)
+    }
+
+    _displayMessage (event) {
+      console.log(event)
     }
   }
 )
