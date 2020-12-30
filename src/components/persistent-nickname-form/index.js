@@ -145,7 +145,8 @@ customElements.define('persistent-nickname-form',
         this._errorMessage.textContent = 'Your nickname can maximum be 20 characters long.'
       } else {
         this._nickname = nickname
-        this.dispatchEvent(new window.CustomEvent('nicknameSet', { detail: { nickname: `${this.nickname}` } }))
+        this._storeNickname()
+        this.dispatchEvent(new window.CustomEvent('nicknameSet', { detail: { nickname: `${this._nickname}` } }))
       }
     }
 
@@ -153,6 +154,10 @@ customElements.define('persistent-nickname-form',
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
+      if (window.localStorage.getItem('pwd-nickname')) {
+        this._nickname = JSON.parse(window.localStorage.getItem('pwd-nickname'))
+        this.dispatchEvent(new window.CustomEvent('nicknameSet', { detail: { nickname: `${this._nickname}` } }))
+      }
       this._nicknameForm.addEventListener('submit', this._onNicknameSubmit)
     }
 
@@ -161,6 +166,13 @@ customElements.define('persistent-nickname-form',
      */
     disconnectedCallback () {
       this._nicknameForm.removeEventListener('submit', this._onNicknameSubmit)
+    }
+
+    /**
+     * Adds the nickname to the local storage.
+     */
+    _storeNickname () {
+      window.localStorage.setItem('pwd-nickname', JSON.stringify(this._nickname))
     }
   }
 )
