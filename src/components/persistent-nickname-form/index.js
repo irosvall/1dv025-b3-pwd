@@ -84,7 +84,7 @@ customElements.define('persistent-nickname-form',
        *
        * @type {string}
        */
-      this.nickname = undefined
+      // this.nickname = undefined
 
       /* ------------HTML ELEMENTS----------- */
 
@@ -146,7 +146,7 @@ customElements.define('persistent-nickname-form',
       } else {
         this._nickname = nickname
         this._storeNickname()
-        this.dispatchEvent(new window.CustomEvent('nicknameSet', { detail: { nickname: `${this._nickname}` } }))
+        this._dispatchNicknameSetEvent()
       }
     }
 
@@ -156,7 +156,7 @@ customElements.define('persistent-nickname-form',
     connectedCallback () {
       if (window.localStorage.getItem('pwd-nickname')) {
         this._nickname = JSON.parse(window.localStorage.getItem('pwd-nickname'))
-        this.dispatchEvent(new window.CustomEvent('nicknameSet', { detail: { nickname: `${this._nickname}` } }))
+        this._dispatchNicknameSetEvent()
       }
       this._nicknameForm.addEventListener('submit', this._onNicknameSubmit)
     }
@@ -173,6 +173,13 @@ customElements.define('persistent-nickname-form',
      */
     _storeNickname () {
       window.localStorage.setItem('pwd-nickname', JSON.stringify(this._nickname))
+    }
+
+    /**
+     * Dispatches the custom event 'nicknameSet'.
+     */
+    _dispatchNicknameSetEvent () {
+      this.dispatchEvent(new window.CustomEvent('nicknameSet', { detail: { nickname: `${this._nickname}` } }))
     }
   }
 )

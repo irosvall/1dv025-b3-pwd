@@ -50,23 +50,53 @@ customElements.define('student-chat',
       this.attachShadow({ mode: 'open' })
         .appendChild(template.content.cloneNode(true))
 
+      /**
+       * The websocket connection established to send and get messages from other students.
+       *
+       * @type {WebSocket}
+       */
+      this._webSocket = new WebSocket('wss://cscloud6-127.lnu.se/socket/') 
+      
+      /**
+       * The user's nickname.
+       *
+       * @type {string}
+       */
+      this._nickname = undefined
+
       /* ------------HTML ELEMENTS----------- */
 
+      /**
+       * The persistent-nickname-form custom element to recieve the nickname.
+       *
+       * @type {HTMLElement}
+       */
+      this._persistentNicknameForm = this.shadowRoot.querySelector('persistent-nickname-form')
+
       /* ------------EVENT HANDLERS----------- */
+
+      /**
+       * Handles nicknameSet custom events for when the user's nickname is set.
+       *
+       * @param {Event} event - The submit event.
+       */
+      this._onNicknameSet = event => {
+        this._nickname = event.detail.nickname
+      }
     }
 
     /**
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
-
+      this._persistentNicknameForm.addEventListener('nicknameSet', this._onNicknameSet)
     }
 
     /**
      * Called after the element has been removed from the DOM.
      */
     disconnectedCallback () {
-
+      this._persistentNicknameForm.removeEventListener('nicknameSet', this._onNicknameSet)
     }
   }
 )
