@@ -50,20 +50,6 @@ customElements.define('student-chat',
       this.attachShadow({ mode: 'open' })
         .appendChild(template.content.cloneNode(true))
 
-      /**
-       * The websocket connection established to send and get messages from other students.
-       *
-       * @type {WebSocket}
-       */
-      this._webSocket = new WebSocket('wss://cscloud6-127.lnu.se/socket/') 
-      
-      /**
-       * The user's nickname.
-       *
-       * @type {string}
-       */
-      this._nickname = undefined
-
       /* ------------HTML ELEMENTS----------- */
 
       /**
@@ -86,6 +72,29 @@ customElements.define('student-chat',
        * @type {HTMLElement}
        */
       this._chatFormTextarea = this.shadowRoot.querySelector('#chatForm textarea')
+
+      /**
+       * A div element representing the chat window displaying the messages.
+       *
+       * @type {HTMLElement}
+       */
+      this._chatWindow = this.shadowRoot.querySelector('#chatWindow')
+
+      /* ------------OTHER PROPERTIES----------- */
+
+      /**
+       * The websocket connection established to send and get messages from other students.
+       *
+       * @type {WebSocket}
+       */
+      this._webSocket = new WebSocket('wss://cscloud6-127.lnu.se/socket/')
+
+      /**
+       * The user's nickname.
+       *
+       * @type {string}
+       */
+      this._nickname = this._persistentNicknameForm.nickname
 
       /* ------------EVENT HANDLERS----------- */
 
@@ -149,6 +158,8 @@ customElements.define('student-chat',
 
     /**
      * Display recieved message from the websocket.
+     *
+     * @param {Event} event - The message event.
      */
     _displayMessage (event) {
       console.log(event)
@@ -167,7 +178,7 @@ customElements.define('student-chat',
         type: 'message',
         data: `${message}`,
         username: `${this._nickname}`,
-        key: 'eDBE76deU7L0H9mEBgxUKVR0VCnq0XBd' 
+        key: 'eDBE76deU7L0H9mEBgxUKVR0VCnq0XBd'
       }))
 
       this._chatFormTextarea.value = ''

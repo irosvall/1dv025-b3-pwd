@@ -79,13 +79,6 @@ customElements.define('persistent-nickname-form',
       this.attachShadow({ mode: 'open' })
         .appendChild(template.content.cloneNode(true))
 
-      /**
-       * The user's nickname.
-       *
-       * @type {string}
-       */
-      this.nickname = undefined
-
       /* ------------HTML ELEMENTS----------- */
 
       /**
@@ -108,6 +101,15 @@ customElements.define('persistent-nickname-form',
        * @type {HTMLElement}
        */
       this._errorMessage = this.shadowRoot.querySelector('#errorMessage')
+
+      /* ------------OTHER PROPERTIES----------- */
+
+      /**
+       * The user's nickname.
+       *
+       * @type {string}
+       */
+      this.nickname = undefined
 
       /* ------------EVENT HANDLERS----------- */
 
