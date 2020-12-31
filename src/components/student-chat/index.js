@@ -122,7 +122,7 @@ customElements.define('student-chat',
        * @param {Event} event - The open event.
        */
       this._onOpen = event => {
-        this._displayMessage(event)
+        console.log(event)
       }
 
       /**
@@ -162,7 +162,15 @@ customElements.define('student-chat',
      * @param {Event} event - The message event.
      */
     _displayMessage (event) {
-      console.log(event)
+      let message = event.data
+      message = JSON.parse(message)
+
+      if (message.type === 'notification' || message.type === 'message') {
+        const pElement = document.createElement('p')
+        pElement.textContent = `${message.username}: ${message.data}`
+
+        this._chatWindow.appendChild(pElement)
+      }
     }
 
     /**
