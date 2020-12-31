@@ -13,8 +13,50 @@ import '../persistent-nickname-form/'
 const template = document.createElement('template')
 template.innerHTML = `
   <style>
+    textarea {
+      font-size: 1.2em;
+      padding: 0.25em 0.5em;
+      resize: none;
+      font-family: inherit;
+      width: 250px;
+      height: 1.2em;
+    }
+
+    #chatWindow {
+      background-color: rgb(240, 239, 235);
+      box-sizing: border-box;
+      padding: 0 5px;
+      width: 332px;
+      height: 280px;
+      overflow-y: auto;
+    }
+
+    #chatWindow p {
+      box-sizing: border-box;
+      display: block;
+      max-width: 322px;
+      word-wrap: break-word;
+      font-size: 1.2em;
+      margin: 0.5em 0;
+    }
+
+    #chatForm {
+      display: flex;
+    }
+
+    #chatForm input {
+      background-color: rgb(165, 165, 141);
+      font-size: 1.2em;
+      border-collapse: collapse;
+    }
+
     .hidden {
       display: none;
+    }
+
+    .offScreen {
+      position: absolute;
+      left: -100000px;
     }
   </style>
 
@@ -22,8 +64,8 @@ template.innerHTML = `
   <div id="chat" class="hidden">
     <div id="chatWindow"></div>
     <form id="chatForm">
-      <label for="message">Write your message here:</label>
-      <textarea name="message" id="message" cols="30" rows="1"></textarea>
+      <label for="message" class="offScreen">Write your message here:</label>
+      <textarea name="message" id="message"></textarea>
       <input type="submit" value="Send">
     </form>
   </div>
@@ -180,6 +222,7 @@ customElements.define('student-chat',
         pElement.textContent = `${message.username}: ${message.data}`
 
         this._chatWindow.appendChild(pElement)
+        this._chatWindow.scrollTop = this._chatWindow.scrollHeight
       }
     }
 
