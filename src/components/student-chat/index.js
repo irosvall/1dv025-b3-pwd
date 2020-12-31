@@ -13,13 +13,13 @@ import '../persistent-nickname-form/'
 const template = document.createElement('template')
 template.innerHTML = `
   <style>
-    .noDisplay {
+    .hidden {
       display: none;
     }
   </style>
 
-  <persistent-nickname-form></persistent-nickname-form>
-  <div id="chat">
+  <persistent-nickname-form class="hidden"></persistent-nickname-form>
+  <div id="chat" class="hidden">
     <div id="chatWindow"></div>
     <form id="chatForm">
       <label for="message">Write your message here:</label>
@@ -58,6 +58,13 @@ customElements.define('student-chat',
        * @type {HTMLElement}
        */
       this._persistentNicknameForm = this.shadowRoot.querySelector('persistent-nickname-form')
+
+      /**
+       * A div element containing the chat application.
+       *
+       * @type {HTMLElement}
+       */
+      this._chat = this.shadowRoot.querySelector('#chat')
 
       /**
        * A form element for sending chat messages.
@@ -105,6 +112,8 @@ customElements.define('student-chat',
        */
       this._onNicknameSet = event => {
         this._nickname = event.detail.nickname
+        this._persistentNicknameForm.classList.add('hidden')
+        this._chat.classList.remove('hidden')
       }
 
       /**
@@ -140,6 +149,7 @@ customElements.define('student-chat',
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
+      this._setUp()
       this._persistentNicknameForm.addEventListener('nicknameSet', this._onNicknameSet)
       this._webSocket.addEventListener('message', this._onMessage)
       this._webSocket.addEventListener('open', this._onOpen)
@@ -190,6 +200,17 @@ customElements.define('student-chat',
       }))
 
       this._chatFormTextarea.value = ''
+    }
+
+    /**
+     * Sets up the DOM structur depending on if a nickname is set or not.
+     */
+    _setUp () {
+      if (this._nickname === undefined) {
+        this._persistentNicknameForm.classList.remove('hidden')
+      } else {
+        this._chat.classList.remove('hidden')
+      }
     }
   }
 )
