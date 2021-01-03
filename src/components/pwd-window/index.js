@@ -11,13 +11,47 @@
 const template = document.createElement('template')
 template.innerHTML = `
   <style>
-    
+    h1 {
+      color: rgb(8, 32, 77);
+      display: inline-block;
+      font-size: 1.5em;
+      margin: 0;
+      padding: 0.25em;
+      cursor: default;
+    }
+
+    #window {
+      border: solid 1px black;
+      position: absolute;
+    }
+
+    #windowHeader {
+      font-size: 16px;
+      background-color: rgb(107, 198, 214);
+      height: 2.5em;
+    }
+
+    #closeIcon {
+      font-family: monospace, sans-serif;
+      color: rgb(8, 32, 77);
+      cursor: pointer;
+      float: right;
+      height: min-content;
+      font-size: 1.9em;
+      padding: 0 0.5em;
+      padding-bottom: 0.1em;
+      font-weight: 700;
+    }
+
+    #closeIcon:hover, #closeIcon:active {
+      background-color: red;
+    }
   </style>
 
   <div id="window">
     <div id="windowHeader">
       <h1 id="applicationName"></h1>
-      <div id="closeIcon"></div>
+      <div id="closeIcon">x</div>
     </div>
     <slot></slot>
   </div>
