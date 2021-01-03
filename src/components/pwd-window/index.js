@@ -28,7 +28,7 @@ template.innerHTML = `
     #windowHeader {
       font-size: 16px;
       background-color: rgb(107, 198, 214);
-      height: 2.5em;
+      height: 2.42em;
     }
 
     #closeIcon {
@@ -80,10 +80,37 @@ customElements.define('pwd-window',
 
       /* ------------HTML ELEMENTS----------- */
 
+      /**
+       * A div element containing the name of the application to be displayed.
+       *
+       * @type {HTMLElement}
+       */
+      this._applicationName = this.shadowRoot.querySelector('#applicationName')
+
       /* ------------OTHER PROPERTIES----------- */
 
       /* ------------EVENT HANDLERS----------- */
 
+    }
+
+    /**
+     * Watches the attributes "inactive" and "hidden" for changes on the element.
+     *
+     * @returns {string[]} An array of the observed attribute's names.
+     */
+    static get observedAttributes () {
+      return ['name']
+    }
+
+    /**
+     * Called by the browser engine when an attribute changes.
+     *
+     * @param {string} name - Name of the attribute.
+     * @param {any} oldValue - The old attribute value.
+     * @param {any} newValue - The new attribute value.
+     */
+    attributeChangedCallback (name, oldValue, newValue) {
+      this._applicationName.textContent = newValue
     }
 
     /**
