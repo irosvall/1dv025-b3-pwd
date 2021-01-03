@@ -24,7 +24,7 @@ template.innerHTML = `
     }
 
     :host(:focus) #tile {
-      box-shadow: 0 0 15px black; 
+      box-shadow: 0 0 7px black; 
     }
 
     :host([inactive]) #tile, :host([hidden]) #tile {

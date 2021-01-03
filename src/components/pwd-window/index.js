@@ -23,6 +23,7 @@ template.innerHTML = `
     #window {
       border: solid 1px black;
       position: absolute;
+      width: max-content;
     }
 
     #windowHeader {

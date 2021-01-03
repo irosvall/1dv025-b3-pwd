@@ -21,31 +21,30 @@ const IMG_TEACUP_URL = (new URL('./images/teacup.png', import.meta.url)).href
 const template = document.createElement('template')
 template.innerHTML = `
   <style>
-    :host {
+    #container {
+      background-color: rgb(255, 255, 255);
+    }
+
+    .gridEasy, .gridMedium, .gridHard {
+      display: grid;
+      justify-items: stretch;
     }
 
     .gridEasy {
-      display: grid;
       grid-template-columns: 1fr 1fr;
       grid-template-rows: 1fr 1fr;
-      gap: 6px;
+      padding: 13px 0 0 13px;
     }
 
-    .gridMedium {
-      display: grid;
+    .gridMedium, .gridHard {
       grid-template-columns: 1fr 1fr 1fr 1fr;
       grid-template-rows: 1fr 1fr 1fr 1fr;
       gap: 6px;
-    }
-
-    .gridHard {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr;
-      grid-template-rows: 1fr 1fr 1fr 1fr;
-      gap: 6px;
+      padding: 5px 8px 8px 4px;
     }
 
     #memoryBoard {
+      box-sizing: border-box;
       width: 430px;
       height: 430px;
     }
@@ -60,14 +59,15 @@ template.innerHTML = `
 
   </style>
 
-  <h1>Memory Game</h1>
-  <div id="difficultyBar">
-    <p>Difficulty: </p>
-    <button id="easyButton">Easy</button>
-    <button id="mediumButton">Medium</button>
-    <button id="hardButton">Hard</button>
+  <div id="container">
+    <div id="difficultyBar">
+      <p>Difficulty: </p>
+      <button id="easyButton">Easy</button>
+      <button id="mediumButton">Medium</button>
+      <button id="hardButton">Hard</button>
+    </div>
+    <div id="memoryBoard" class="gridEasy"></div>
   </div>
-  <div id="memoryBoard" class="gridEasy"></div>
 `
 customElements.define('memory-game',
   /**
