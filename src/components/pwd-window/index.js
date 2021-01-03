@@ -26,32 +26,35 @@ template.innerHTML = `
     }
 
     #windowHeader {
+      display: grid;
+      grid-template-columns: 1fr min-content;
       font-size: 16px;
       background-color: rgb(107, 198, 214);
-      height: 2.42em;
+      height: fit-content;
     }
 
-    #closeIcon {
+    #closeButton {
       font-family: monospace, sans-serif;
       color: rgb(8, 32, 77);
       cursor: pointer;
-      float: right;
-      height: min-content;
+      
       font-size: 1.9em;
       padding: 0 0.5em;
-      padding-bottom: 0.1em;
+      
       font-weight: 700;
     }
 
-    #closeIcon:hover, #closeIcon:active {
+    #closeButton:hover, #closeButton:active {
       background-color: red;
     }
   </style>
 
   <div id="window">
     <div id="windowHeader">
-      <h1 id="applicationName"></h1>
-      <div id="closeIcon">x</div>
+      <div id="draggable">
+        <h1 id="applicationName"></h1>
+      </div>
+      <div id="closeButton">x</div>
     </div>
     <slot></slot>
   </div>
@@ -95,11 +98,25 @@ customElements.define('pwd-window',
       this._windowHeader = this.shadowRoot.querySelector('#windowHeader')
 
       /**
+       * A div element containing draggable part of the window's header.
+       *
+       * @type {HTMLElement}
+       */
+      this._draggable = this.shadowRoot.querySelector('#draggable')
+
+      /**
        * A div element containing the name of the application to be displayed.
        *
        * @type {HTMLElement}
        */
       this._applicationName = this.shadowRoot.querySelector('#applicationName')
+
+      /**
+       * A div element to close the window.
+       *
+       * @type {HTMLElement}
+       */
+      this._closeButton = this.shadowRoot.querySelector('#closeButton')
 
       /* ------------OTHER PROPERTIES----------- */
 
@@ -156,7 +173,8 @@ customElements.define('pwd-window',
           const newPositionY = this._positionY - event.clientY
           this._positionX = event.clientX
           this._positionY = event.clientY
-          
+
+          // Moves the element
           this._window.style.left = `${this._window.offsetLeft - newPositionX}px`
           this._window.style.top = `${this._window.offsetTop - newPositionY}px`
         }
@@ -172,6 +190,19 @@ customElements.define('pwd-window',
           this._positionY = 0
           this._isDraging = false
         }
+      }
+
+      /**
+       * Handles click events for when the user clicks the close button.
+       *
+       * @param {Event} event - The click event.
+       */
+      this._onClickClose = () => {
+        this.dispatchEvent(new CustomEvent('close', {
+          bubbles: true
+        }))
+        this.style.display = 'none'
+        this.disconnectedCallback()
       }
     }
 
@@ -199,18 +230,20 @@ customElements.define('pwd-window',
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
-      this._windowHeader.addEventListener('mousedown', this._onMousedown)
-      this._windowHeader.addEventListener('mousemove', this._onMousemove)
-      this._windowHeader.addEventListener('mouseup', this._onMouseup)
+      this._draggable.addEventListener('mousedown', this._onMousedown)
+      this._draggable.addEventListener('mousemove', this._onMousemove)
+      this._draggable.addEventListener('mouseup', this._onMouseup)
+      this._closeButton.addEventListener('click', this._onClickClose)
     }
 
     /**
      * Called after the element has been removed from the DOM.
      */
     disconnectedCallback () {
-      this._windowHeader.removeEventListener('mousedown', this._onMousedown)
-      this._windowHeader.removeEventListener('mousemove', this._onMousemove)
-      this._windowHeader.removeEventListener('mouseup', this._onMouseup)
+      this._draggable.removeEventListener('mousedown', this._onMousedown)
+      this._draggable.removeEventListener('mousemove', this._onMousemove)
+      this._draggable.removeEventListener('mouseup', this._onMouseup)
+      this._closeButton.removeEventListener('click', this._onClickClose)
     }
   }
 )
