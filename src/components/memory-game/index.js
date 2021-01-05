@@ -26,6 +26,8 @@ template.innerHTML = `
   <style>
     #container {
       background-color: rgb(255, 255, 255);
+      position: relative;
+      width: fit-content;
     }
 
     .gridEasy, .gridMedium, .gridHard {
@@ -46,6 +48,10 @@ template.innerHTML = `
       padding: 5px 8px 8px 4px;
     }
 
+    .hidden {
+      display: none;
+    }
+
     #memoryBoard {
       box-sizing: border-box;
       width: 430px;
@@ -60,6 +66,30 @@ template.innerHTML = `
       display: inline;
     }
 
+    #winScreen {
+      position: absolute;
+      width: 300px;
+      height: 200px;
+      left: 50%;
+      top: 50%;
+      margin-top: -100px;
+      margin-left: -150px;
+      text-align: center;
+    }
+
+    #winScreen h2, #winScreen p {
+      font-weight: 700;
+      margin: 0.5em 0;
+    }
+
+    #winScreen h2 {
+      font-size: 3.4em;
+    }
+
+    #winScreen p {
+      font-size: 2.1em;
+    }
+
   </style>
 
   <div id="container">
@@ -70,6 +100,7 @@ template.innerHTML = `
       <button id="hardButton">Hard</button>
     </div>
     <div id="memoryBoard" class="gridEasy"></div>
+    <div id="winScreen" class="hidden"></div>
   </div>
 `
 customElements.define('memory-game',
@@ -126,6 +157,13 @@ customElements.define('memory-game',
        * @type {HTMLElement}
        */
       this._hardButton = this.shadowRoot.querySelector('#hardButton')
+
+      /**
+       * A div element displaying what the user will see when all tiles has matched.
+       *
+       * @type {HTMLElement}
+       */
+      this._winScreen = this.shadowRoot.querySelector('#winScreen')
 
       /* ------------OTHER PROPERTIES----------- */
 
@@ -184,6 +222,7 @@ customElements.define('memory-game',
           this._firstFlippedTile = event.target
           this._flippedCount++
         } else {
+          this._attempts++
           this._makeAllTilesNonFlipable()
 
           // Checks if the tiles match each other.
@@ -220,22 +259,21 @@ customElements.define('memory-game',
      * @param {any} newValue - The new attribute value.
      */
     attributeChangedCallback (name, oldValue, newValue) {
-      if (name === 'difficulty') {
-        if (newValue === 'easy' || newValue === 'medium' || newValue === 'hard') {
-          this._resetFlippedCount()
-          this._memoryBoard.classList.remove('gridEasy', 'gridMedium', 'gridHard')
-          if (newValue === 'easy') {
-            this._memoryBoard.classList.add('gridEasy')
-            this._numberOfCards = 4
-          } else if (newValue === 'medium') {
-            this._memoryBoard.classList.add('gridMedium')
-            this._numberOfCards = 8
-          } else {
-            this._memoryBoard.classList.add('gridHard')
-            this._numberOfCards = 16
-          }
-          this._renderMemoryCards()
+      if (newValue === 'easy' || newValue === 'medium' || newValue === 'hard') {
+        this._resetFlippedCount()
+        this._attempts = 0
+        this._memoryBoard.classList.remove('gridEasy', 'gridMedium', 'gridHard')
+        if (newValue === 'easy') {
+          this._memoryBoard.classList.add('gridEasy')
+          this._numberOfCards = 4
+        } else if (newValue === 'medium') {
+          this._memoryBoard.classList.add('gridMedium')
+          this._numberOfCards = 8
+        } else {
+          this._memoryBoard.classList.add('gridHard')
+          this._numberOfCards = 16
         }
+        this._renderMemoryCards()
       }
     }
 
@@ -303,7 +341,32 @@ customElements.define('memory-game',
           return
         }
       }
+      this._allTilesMatched()
+    }
+
+    /**
+     * Fires when all flipping-tile custom elements has matched.
+     * Renders out how many attmepts the user has made.
+     */
+    _allTilesMatched () {
       this.dispatchEvent(new CustomEvent('allTilesMatched'))
+
+      const fragment = document.createDocumentFragment()
+
+      const congratzText = document.createElement('h2')
+      congratzText.textContent = 'Good job!'
+      fragment.appendChild(congratzText)
+
+      const result = document.createElement('p')
+      result.textContent = `Attempts: ${this._attempts}`
+      fragment.appendChild(result)
+      
+      this._winScreen.textContent = ''
+      this._winScreen.appendChild(fragment)
+      this._winScreen.classList.remove('hidden')
+      window.setTimeout(() => {
+        this._winScreen.classList.add('hidden')
+      }, 2000)
     }
 
     /**
