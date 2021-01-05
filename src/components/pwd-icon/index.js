@@ -16,6 +16,7 @@ template.innerHTML = `
   <style>
     :host {
       display: inline-block;
+      cursor: pointer;
     }
 
     ::slotted(*) {

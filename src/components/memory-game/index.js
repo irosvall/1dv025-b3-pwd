@@ -5,6 +5,9 @@
  * @version 1.0.0
  */
 
+// Dependencies
+import '../flipping-tile/'
+
 // All memory images being used. Made by Moa Alfredsson, used as study material.
 const IMG_CLOCK_URL = (new URL('./images/clock.png', import.meta.url)).href
 const IMG_FLOWER_URL = (new URL('./images/flower.png', import.meta.url)).href
@@ -87,13 +90,6 @@ customElements.define('memory-game',
       this.attachShadow({ mode: 'open' })
         .appendChild(template.content.cloneNode(true))
 
-      /**
-       * How many times the user has flipped cards in a row.
-       *
-       * @type {number}
-       */
-      this._flippedCount = 0
-
       /* ------------HTML ELEMENTS----------- */
 
       /**
@@ -131,32 +127,49 @@ customElements.define('memory-game',
        */
       this._hardButton = this.shadowRoot.querySelector('#hardButton')
 
+      /* ------------OTHER PROPERTIES----------- */
+
+      /**
+       * The amount of flipping cards to used in the game.
+       *
+       * @type {number}
+       */
+      this._numberOfCards = 0
+
+      /**
+       * How many times the user has flipped cards in a row.
+       *
+       * @type {number}
+       */
+      this._flippedCount = 0
+
+      /**
+       * How many attempts the user made to match tiles.
+       *
+       * @type {number}
+       */
+      this._attempts = 0
+
       /* ------------EVENT HANDLERS----------- */
 
       /**
        * Handles click events for when the difficulty is changed to easy.
-       *
-       * @param {Event} event - The click event.
        */
-      this._onEasyButtonClick = event => {
+      this._onEasyButtonClick = () => {
         this.setAttribute('difficulty', 'easy')
       }
 
       /**
        * Handles click events for when the difficulty is changed to medium.
-       *
-       * @param {Event} event - The click event.
        */
-      this._onMediumButtonClick = event => {
+      this._onMediumButtonClick = () => {
         this.setAttribute('difficulty', 'medium')
       }
 
       /**
        * Handles click events for when the difficulty is changed to hard.
-       *
-       * @param {Event} event - The click event.
        */
-      this._onHardButtonClick = event => {
+      this._onHardButtonClick = () => {
         this.setAttribute('difficulty', 'hard')
       }
 
@@ -172,6 +185,8 @@ customElements.define('memory-game',
           this._flippedCount++
         } else {
           this._makeAllTilesNonFlipable()
+
+          // Checks if the tiles match each other.
           if (this._firstFlippedTile.isEqualNode(event.target)) {
             this.dispatchEvent(new CustomEvent('matchingTiles', {
               detail: {
@@ -211,14 +226,15 @@ customElements.define('memory-game',
           this._memoryBoard.classList.remove('gridEasy', 'gridMedium', 'gridHard')
           if (newValue === 'easy') {
             this._memoryBoard.classList.add('gridEasy')
-            this._renderMemoryCards(4)
+            this._numberOfCards = 4
           } else if (newValue === 'medium') {
             this._memoryBoard.classList.add('gridMedium')
-            this._renderMemoryCards(8)
+            this._numberOfCards = 8
           } else {
             this._memoryBoard.classList.add('gridHard')
-            this._renderMemoryCards(16)
+            this._numberOfCards = 16
           }
+          this._renderMemoryCards()
         }
       }
     }
@@ -231,6 +247,11 @@ customElements.define('memory-game',
       this._mediumButton.addEventListener('click', this._onMediumButtonClick)
       this._hardButton.addEventListener('click', this._onHardButtonClick)
       this._memoryBoard.addEventListener('flipped', this._onFlipped)
+
+      // If no difficulty was specified as attribute, render easy difficulty as default.
+      if (this._numberOfCards === 0) {
+        this.setAttribute('difficulty', 'easy')
+      }
     }
 
     /**
@@ -316,11 +337,9 @@ customElements.define('memory-game',
 
     /**
      * Renders out the memory cards on the memory board depending on the difficulty.
-     *
-     * @param {number} numberOfCards - The number of cards the memory game should have.
      */
-    _renderMemoryCards (numberOfCards) {
-      const flippingTileArray = this._createMemoryCards(numberOfCards)
+    _renderMemoryCards () {
+      const flippingTileArray = this._createMemoryCards()
       const fragment = document.createDocumentFragment()
 
       flippingTileArray.forEach(element => {
@@ -334,13 +353,12 @@ customElements.define('memory-game',
     /**
      * Creates an array with shuffled duplicated flipping-tile custom elements.
      *
-     * @param {number} amount - The amount of flipping-tile custom elements needed to be created.
      * @returns {Array} An array containing the ducplicated flipping-tile custom elements.
      */
-    _createMemoryCards (amount) {
+    _createMemoryCards () {
       try {
         const flippingTileArray = []
-        while (flippingTileArray.length < amount) {
+        while (flippingTileArray.length < this._numberOfCards) {
           if (flippingTileArray.length === 0) {
             flippingTileArray.push(this._createFlippingTileWithImage(IMG_CLOCK_URL, 'Clock'))
             flippingTileArray.push(this._createFlippingTileWithImage(IMG_CLOCK_URL, 'Clock'))
@@ -370,7 +388,7 @@ customElements.define('memory-game',
         this._shuffleArray(flippingTileArray)
         return flippingTileArray
       } catch {
-        console.log(new Error('Non valid amount of memory cards to be created'))
+        console.error('Non valid amount of memory cards to be created')
       }
     }
 
