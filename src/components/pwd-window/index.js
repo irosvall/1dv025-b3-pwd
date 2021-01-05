@@ -138,7 +138,7 @@ customElements.define('pwd-window',
       /**
        * A Boolean indicating whether or not the window is being dragged.
        *
-       * @type {Boolean}
+       * @type {boolean}
        */
       this._isDraging = false
 
@@ -160,9 +160,9 @@ customElements.define('pwd-window',
       }
 
       /**
-       * Inspiration how to move element gathered from: 
+       * Inspiration how to move element gathered from:
        * https://www.w3schools.com/howto/howto_js_draggable.asp [visited: 2021-01-03]
-       * 
+       *
        * Handles mousemove events for when the user's cursor
        * is moved inside the window's header.
        *
@@ -182,7 +182,7 @@ customElements.define('pwd-window',
       }
 
       /**
-       * Handles mouseup events for when the user releases 
+       * Handles mouseup events for when the user releases
        * the mouse button from the window's header.
        */
       this._onMouseup = () => {
@@ -195,8 +195,6 @@ customElements.define('pwd-window',
 
       /**
        * Handles click events for when the user clicks the close button.
-       *
-       * @param {Event} event - The click event.
        */
       this._onClickClose = () => {
         this.dispatchEvent(new CustomEvent('close', {
