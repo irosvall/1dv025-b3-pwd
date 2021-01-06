@@ -21,9 +21,19 @@ template.innerHTML = `
     }
 
     #window {
-      border: solid 1px black;
+      border: solid 1px rgb(8, 32, 77);
       position: absolute;
       width: max-content;
+      left: 20%;
+      top: 10%;
+    }
+
+    #window:focus {
+      border-color: red;
+    }
+
+    #window:focus-within {
+      z-index: 1000;
     }
 
     #windowHeader {
@@ -50,12 +60,12 @@ template.innerHTML = `
     }
   </style>
 
-  <div id="window">
+  <div id="window" tabindex="0">
     <div id="windowHeader">
       <div id="draggable">
         <h1 id="applicationName"></h1>
       </div>
-      <div id="closeButton">x</div>
+      <div id="closeButton" tabindex="0">x</div>
     </div>
     <slot></slot>
   </div>
@@ -119,6 +129,13 @@ customElements.define('pwd-window',
        */
       this._closeButton = this.shadowRoot.querySelector('#closeButton')
 
+      /**
+       * A slot element containing the application.
+       *
+       * @type {HTMLElement}
+       */
+      this._slot = this.shadowRoot.querySelector('slot')
+
       /* ------------OTHER PROPERTIES----------- */
 
       /**
@@ -145,8 +162,19 @@ customElements.define('pwd-window',
       /* ------------EVENT HANDLERS----------- */
 
       /**
+       * Handles mousedown events for when the user clicks within the window.
+       *
+       * Gives the window element focus.
+       */
+      this._onWindowMousedown = () => {
+        this._window.focus() 
+      }
+
+      /**
        * Handles mousedown events for when the user press down
        * the mouse button on the window's header.
+       *
+       * Gather the mouse coordinates.
        *
        * @param {Event} event - The mousedown event.
        */
@@ -166,16 +194,34 @@ customElements.define('pwd-window',
        * Handles mousemove events for when the user's cursor
        * is moved inside the window's header.
        *
+       * Gather new mouse coordinates and moves the element.
+       *
        * @param {Event} event - The mousemove event.
        */
       this._onMousemove = event => {
         if (this._isDraging === true) {
+          // Stops moving the element if mouse leaves the screen.
+          if (event.pageX <= 2 || event.pageX >= document.documentElement.clientWidth || event.pageY <= 2 || event.pageY >= document.documentElement.clientHeight) {
+            this._isDraging = false
+            return
+          }
+
+          // Prevents the window from surpassing the browser screen.
+          if (this._window.offsetLeft <= 0) {
+            this._window.style.left = '1px'
+          } else if (this._window.offsetLeft + this._window.offsetWidth >= document.documentElement.clientWidth) {
+            this._window.style.left = `${document.documentElement.clientWidth - this._window.offsetWidth}px`
+          } else if (this._window.offsetTop <= 0) {
+            this._window.style.top = '1px'
+          } else if (this._window.offsetTop + this._window.offsetHeight >= document.documentElement.clientHeight) {
+            this._window.style.top = `${document.documentElement.clientHeight - this._window.offsetHeight}px`
+          }
+
           const newPositionX = this._positionX - event.clientX
           const newPositionY = this._positionY - event.clientY
           this._positionX = event.clientX
           this._positionY = event.clientY
 
-          // Moves the element
           this._window.style.left = `${this._window.offsetLeft - newPositionX}px`
           this._window.style.top = `${this._window.offsetTop - newPositionY}px`
         }
@@ -184,6 +230,8 @@ customElements.define('pwd-window',
       /**
        * Handles mouseup events for when the user releases
        * the mouse button from the window's header.
+       *
+       * Resets the mouse position and stops the element from moving.
        */
       this._onMouseup = () => {
         if (this._isDraging === true) {
@@ -195,6 +243,8 @@ customElements.define('pwd-window',
 
       /**
        * Handles click events for when the user clicks the close button.
+       *
+       * Closes the window with its application.
        */
       this._onClickClose = () => {
         this.dispatchEvent(new CustomEvent('close', {
@@ -228,6 +278,7 @@ customElements.define('pwd-window',
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
+      this._window.addEventListener('mousedown', this._onWindowMousedown)
       this._draggable.addEventListener('mousedown', this._onMousedown)
       this._draggable.addEventListener('mousemove', this._onMousemove)
       this._draggable.addEventListener('mouseup', this._onMouseup)
@@ -238,6 +289,7 @@ customElements.define('pwd-window',
      * Called after the element has been removed from the DOM.
      */
     disconnectedCallback () {
+      this._window.removeEventListener('mousedown', this._onWindowMousedown)
       this._draggable.removeEventListener('mousedown', this._onMousedown)
       this._draggable.removeEventListener('mousemove', this._onMousemove)
       this._draggable.removeEventListener('mouseup', this._onMouseup)
