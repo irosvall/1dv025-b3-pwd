@@ -360,7 +360,7 @@ customElements.define('memory-game',
       const result = document.createElement('p')
       result.textContent = `Attempts: ${this._attempts}`
       fragment.appendChild(result)
-      
+
       this._winScreen.textContent = ''
       this._winScreen.appendChild(fragment)
       this._winScreen.classList.remove('hidden')

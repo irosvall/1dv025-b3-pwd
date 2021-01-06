@@ -200,8 +200,7 @@ customElements.define('pwd-window',
         this.dispatchEvent(new CustomEvent('close', {
           bubbles: true
         }))
-        this.style.display = 'none'
-        this.disconnectedCallback()
+        this.remove()
       }
     }
 

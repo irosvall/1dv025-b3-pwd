@@ -206,6 +206,7 @@ customElements.define('student-chat',
       this._webSocket.removeEventListener('message', this._onMessage)
       this._webSocket.removeEventListener('open', this._onOpen)
       this._chatForm.removeEventListener('submit', this._onSubmit)
+      this._webSocket.close()
     }
 
     /**
