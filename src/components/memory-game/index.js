@@ -7,6 +7,7 @@
 
 // Dependencies
 import '../flipping-tile/'
+import '../count-up-timer/'
 
 // All memory images being used. Made by Moa Alfredsson, used as study material.
 const IMG_CLOCK_URL = (new URL('./images/clock.png', import.meta.url)).href
@@ -124,13 +125,6 @@ customElements.define('memory-game',
       /* ------------HTML ELEMENTS----------- */
 
       /**
-       * The first flipped flipping-tile custom element to be compared with the second.
-       *
-       * @type {HTMLElement}
-       */
-      this._firstFlippedTile = ''
-
-      /**
        * A div element representing the collection of the memory cards.
        *
        * @type {HTMLElement}
@@ -165,7 +159,21 @@ customElements.define('memory-game',
        */
       this._winScreen = this.shadowRoot.querySelector('#winScreen')
 
+      /**
+       * A count-up-timer custom element for displaying a timer.
+       *
+       * @type {HTMLElement}
+       */
+      this._countUpTimer = undefined
+
       /* ------------OTHER PROPERTIES----------- */
+
+      /**
+       * The first flipped flipping-tile custom element to be compared with the second.
+       *
+       * @type {HTMLElement}
+       */
+      this._firstFlippedTile = ''
 
       /**
        * The amount of flipping cards to used in the game.
@@ -274,6 +282,7 @@ customElements.define('memory-game',
           this._numberOfCards = 16
         }
         this._renderMemoryCards()
+        this._countUpTimer.startTimer()
       }
     }
 
@@ -281,6 +290,9 @@ customElements.define('memory-game',
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
+      this._countUpTimer = document.createElement('count-up-timer')
+      this.shadowRoot.querySelector('#difficultyBar').appendChild(this._countUpTimer)
+
       this._easyButton.addEventListener('click', this._onEasyButtonClick)
       this._mediumButton.addEventListener('click', this._onMediumButtonClick)
       this._hardButton.addEventListener('click', this._onHardButtonClick)
