@@ -85,7 +85,7 @@ customElements.define('pwd-icon',
       this._onClick = () => {
         this._startApplication()
       }
-      
+
       /**
        * Handles keydown events.
        *

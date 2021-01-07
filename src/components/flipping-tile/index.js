@@ -138,7 +138,6 @@ customElements.define('flipping-tile',
     attributeChangedCallback (name, oldValue, newValue) {
       if (newValue || newValue === '') {
         this.setAttribute('tabindex', '-1')
-        this.blur()
       } else if (!this.hasAttribute('inactive') && !this.hasAttribute('hidden')) {
         this.setAttribute('tabindex', '0')
       }

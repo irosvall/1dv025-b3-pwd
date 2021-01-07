@@ -23,17 +23,10 @@ template.innerHTML = `
     #window {
       border: solid 1px rgb(8, 32, 77);
       position: absolute;
+      z-index: 1000;
       width: max-content;
       left: 20%;
       top: 10%;
-    }
-
-    #window:focus {
-      border-color: red;
-    }
-
-    #window:focus-within {
-      z-index: 1000;
     }
 
     #windowHeader {
@@ -48,14 +41,14 @@ template.innerHTML = `
       font-family: monospace, sans-serif;
       color: rgb(8, 32, 77);
       cursor: pointer;
-      
       font-size: 1.9em;
       padding: 0 0.5em;
-      
       font-weight: 700;
     }
 
-    #closeButton:hover, #closeButton:active {
+    #closeButton:hover, #closeButton:active, #closeButton:focus {
+      outline: none;
+      border: none;
       background-color: red;
     }
   </style>
@@ -129,13 +122,6 @@ customElements.define('pwd-window',
        */
       this._closeButton = this.shadowRoot.querySelector('#closeButton')
 
-      /**
-       * A slot element containing the application.
-       *
-       * @type {HTMLElement}
-       */
-      this._slot = this.shadowRoot.querySelector('slot')
-
       /* ------------OTHER PROPERTIES----------- */
 
       /**
@@ -159,15 +145,38 @@ customElements.define('pwd-window',
        */
       this._isDraging = false
 
+      /**
+       * Represents the z-index of the window (div) element.
+       *
+       * @type {number}
+       */
+      this._zIndex = 1000
+
       /* ------------EVENT HANDLERS----------- */
 
       /**
        * Handles mousedown events for when the user clicks within the window.
        *
-       * Gives the window element focus.
+       * Gives the window element highest z-index to appear at the top.
+       *
        */
       this._onWindowMousedown = () => {
-        this._window.focus() 
+        const windowElements = document.querySelectorAll('pwd-window')
+
+        if (windowElements.length === 1) {
+          return
+        }
+
+        // Gets the z-index of every window element, and give pressed window highest index.
+        windowElements.forEach(element => {
+          const zIndex = Number(document.defaultView.getComputedStyle(element._window).getPropertyValue('z-index'))
+
+          if (zIndex >= this._zIndex) {
+            this._zIndex = zIndex + 1
+          }
+        })
+
+        this._window.style.zIndex = this._zIndex
       }
 
       /**
@@ -206,22 +215,14 @@ customElements.define('pwd-window',
             return
           }
 
-          // Prevents the window from surpassing the browser screen.
-          if (this._window.offsetLeft <= 0) {
-            this._window.style.left = '1px'
-          } else if (this._window.offsetLeft + this._window.offsetWidth >= document.documentElement.clientWidth) {
-            this._window.style.left = `${document.documentElement.clientWidth - this._window.offsetWidth}px`
-          } else if (this._window.offsetTop <= 0) {
-            this._window.style.top = '1px'
-          } else if (this._window.offsetTop + this._window.offsetHeight >= document.documentElement.clientHeight) {
-            this._window.style.top = `${document.documentElement.clientHeight - this._window.offsetHeight}px`
-          }
+          this._keepInsideBrowserWindow()
 
           const newPositionX = this._positionX - event.clientX
           const newPositionY = this._positionY - event.clientY
           this._positionX = event.clientX
           this._positionY = event.clientY
 
+          // Moves the element
           this._window.style.left = `${this._window.offsetLeft - newPositionX}px`
           this._window.style.top = `${this._window.offsetTop - newPositionY}px`
         }
@@ -294,6 +295,21 @@ customElements.define('pwd-window',
       this._draggable.removeEventListener('mousemove', this._onMousemove)
       this._draggable.removeEventListener('mouseup', this._onMouseup)
       this._closeButton.removeEventListener('click', this._onClickClose)
+    }
+
+    /**
+     * Prevents the window from going outside the browser screen.
+     */
+    _keepInsideBrowserWindow () {
+      if (this._window.offsetLeft <= 0) {
+        this._window.style.left = '1px'
+      } else if (this._window.offsetLeft + this._window.offsetWidth >= document.documentElement.clientWidth) {
+        this._window.style.left = `${document.documentElement.clientWidth - this._window.offsetWidth - 3}px`
+      } else if (this._window.offsetTop <= 0) {
+        this._window.style.top = '1px'
+      } else if (this._window.offsetTop + this._window.offsetHeight >= document.documentElement.clientHeight) {
+        this._window.style.top = `${document.documentElement.clientHeight - this._window.offsetHeight - 1}px`
+      }
     }
   }
 )
