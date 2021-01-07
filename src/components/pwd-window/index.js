@@ -248,10 +248,18 @@ customElements.define('pwd-window',
        * Closes the window with its application.
        */
       this._onClickClose = () => {
-        this.dispatchEvent(new CustomEvent('close', {
-          bubbles: true
-        }))
-        this.remove()
+        this._closeWindow()
+      }
+
+      /**
+       * Handles keydown events for when the user press down the close button.
+       *
+       * @param {Event} event - The keydown event.
+       */
+      this._onKeydownClose = event => {
+        if (event.code === 'Enter') {
+          this._closeWindow()
+        }
       }
     }
 
@@ -284,6 +292,7 @@ customElements.define('pwd-window',
       this._draggable.addEventListener('mousemove', this._onMousemove)
       this._draggable.addEventListener('mouseup', this._onMouseup)
       this._closeButton.addEventListener('click', this._onClickClose)
+      this._closeButton.addEventListener('keydown', this._onKeydownClose)
     }
 
     /**
@@ -295,6 +304,7 @@ customElements.define('pwd-window',
       this._draggable.removeEventListener('mousemove', this._onMousemove)
       this._draggable.removeEventListener('mouseup', this._onMouseup)
       this._closeButton.removeEventListener('click', this._onClickClose)
+      this._closeButton.removeEventListener('keydown', this._onKeydownClose)
     }
 
     /**
@@ -310,6 +320,16 @@ customElements.define('pwd-window',
       } else if (this._window.offsetTop + this._window.offsetHeight >= document.documentElement.clientHeight) {
         this._window.style.top = `${document.documentElement.clientHeight - this._window.offsetHeight - 1}px`
       }
+    }
+
+    /**
+     * Closes the window with its containing application.
+     */
+    _closeWindow () {
+      this.dispatchEvent(new CustomEvent('close', {
+        bubbles: true
+      }))
+      this.remove()
     }
   }
 )

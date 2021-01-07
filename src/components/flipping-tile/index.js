@@ -165,7 +165,7 @@ customElements.define('flipping-tile',
     /**
      * Handles keydown events.
      *
-     * @param {KeyboardEvent} event - The keyboard event.
+     * @param {Event} event - The keydown event.
      */
     _onkeydown (event) {
       if (event.code === 'Enter') {
