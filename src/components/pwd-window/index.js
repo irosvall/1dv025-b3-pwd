@@ -287,6 +287,8 @@ customElements.define('pwd-window',
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
+      // Add focus to window for keyboard users.
+      this._window.focus()
       this._window.addEventListener('mousedown', this._onWindowMousedown)
       this._draggable.addEventListener('mousedown', this._onMousedown)
       this._draggable.addEventListener('mousemove', this._onMousemove)

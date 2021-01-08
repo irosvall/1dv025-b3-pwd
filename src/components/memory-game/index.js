@@ -68,14 +68,19 @@ template.innerHTML = `
     }
 
     #winScreen {
+      color: white;
+      background-color: rgba(8, 32, 77, 0.829);
       position: absolute;
-      width: 300px;
-      height: 200px;
-      left: 50%;
-      top: 50%;
-      margin-top: -100px;
-      margin-left: -150px;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
       text-align: center;
+    }
+
+    #winScreen:focus {
+      outline-style: solid;
+      outline-color:rgba(8, 32, 77, 0.945);
     }
 
     #winScreen h2, #winScreen p {
@@ -84,11 +89,17 @@ template.innerHTML = `
     }
 
     #winScreen h2 {
+      margin-top: 30%;
       font-size: 3.4em;
     }
 
     #winScreen p {
       font-size: 2.1em;
+    }
+
+    #winScreen #explanation {
+      font-size: 1.3em;
+      margin-top: 20%;
     }
 
   </style>
@@ -101,7 +112,7 @@ template.innerHTML = `
       <button id="hardButton">Hard</button>
     </div>
     <div id="memoryBoard" class="gridEasy"></div>
-    <div id="winScreen" class="hidden"></div>
+    <div id="winScreen" class="hidden" tabindex="0"></div>
   </div>
 `
 customElements.define('memory-game',
@@ -196,6 +207,13 @@ customElements.define('memory-game',
        */
       this._attempts = 0
 
+      /**
+       * The difficulty the user is playing on.
+       *
+       * @type {string}
+       */
+      this._difficulty = undefined
+
       /* ------------EVENT HANDLERS----------- */
 
       /**
@@ -248,6 +266,25 @@ customElements.define('memory-game',
           }
         }
       }
+
+      /**
+       * Handles click events for when the user clicks the winning screen.
+       */
+      this._onWinScreenClick = () => {
+        this._startNewGame()
+      }
+
+      /**
+       * Handles keydown events for when the user press down the close button.
+       *
+       * @param {Event} event - The keydown event.
+       */
+      this._onWinScreenKeydown = event => {
+        if (event.code === 'Enter') {
+          this._startNewGame()
+          this._memoryBoard.firstElementChild.focus()
+        }
+      }
     }
 
     /**
@@ -268,15 +305,20 @@ customElements.define('memory-game',
      */
     attributeChangedCallback (name, oldValue, newValue) {
       if (newValue === 'easy' || newValue === 'medium' || newValue === 'hard') {
+        this._difficulty = newValue
+
+        // Resets values.
         this._countUpTimer.stopTimer()
         this._countUpTimer.resetTotalTime()
         this._resetFlippedCount()
         this._attempts = 0
         this._memoryBoard.classList.remove('gridEasy', 'gridMedium', 'gridHard')
-        if (newValue === 'easy') {
+
+        // Render cards depending on difficulty.
+        if (this._difficulty === 'easy') {
           this._memoryBoard.classList.add('gridEasy')
           this._numberOfCards = 4
-        } else if (newValue === 'medium') {
+        } else if (this._difficulty === 'medium') {
           this._memoryBoard.classList.add('gridMedium')
           this._numberOfCards = 8
         } else {
@@ -292,18 +334,21 @@ customElements.define('memory-game',
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
+      // Create timer here for its constuctor to be called on time.
       this._countUpTimer = document.createElement('count-up-timer')
       this.shadowRoot.querySelector('#difficultyBar').appendChild(this._countUpTimer)
-
-      this._easyButton.addEventListener('click', this._onEasyButtonClick)
-      this._mediumButton.addEventListener('click', this._onMediumButtonClick)
-      this._hardButton.addEventListener('click', this._onHardButtonClick)
-      this._memoryBoard.addEventListener('flipped', this._onFlipped)
 
       // If no difficulty was specified as attribute, render easy difficulty as default.
       if (this._numberOfCards === 0) {
         this.setAttribute('difficulty', 'easy')
       }
+
+      this._easyButton.addEventListener('click', this._onEasyButtonClick)
+      this._mediumButton.addEventListener('click', this._onMediumButtonClick)
+      this._hardButton.addEventListener('click', this._onHardButtonClick)
+      this._memoryBoard.addEventListener('flipped', this._onFlipped)
+      this._winScreen.addEventListener('click', this._onWinScreenClick)
+      this._winScreen.addEventListener('keydown', this._onWinScreenKeydown)
     }
 
     /**
@@ -314,6 +359,16 @@ customElements.define('memory-game',
       this._mediumButton.removeEventListener('click', this._onMediumButtonClick)
       this._hardButton.removeEventListener('click', this._onHardButtonClick)
       this._memoryBoard.removeEventListener('flipped', this._onFlipped)
+      this._winScreen.removeEventListener('click', this._onWinScreenClick)
+      this._winScreen.removeEventListener('keydown', this._onWinScreenKeydown)
+    }
+
+    /**
+     * Starts a new game with the same difficulty as previously played on.
+     */
+    _startNewGame () {
+      this.setAttribute('difficulty', this._difficulty)
+      this._winScreen.classList.add('hidden')
     }
 
     /**
@@ -360,32 +415,15 @@ customElements.define('memory-game',
 
     /**
      * Fires when all flipping-tile custom elements has matched.
-     * Renders out how many attmepts the user has made.
+     * Renders out details about how the game went.
      */
     _allTilesMatched () {
       this.dispatchEvent(new CustomEvent('allTilesMatched'))
 
       this._countUpTimer.stopTimer()
-      const fragment = document.createDocumentFragment()
-
-      const congratzText = document.createElement('h2')
-      congratzText.textContent = 'Good job!'
-      fragment.appendChild(congratzText)
-
-      const result = document.createElement('p')
-      result.textContent = `Attempts: ${this._attempts}`
-      fragment.appendChild(result)
-
-      const time = document.createElement('p')
-      time.textContent = `Time: ${this._countUpTimer.totalTime} s`
-      fragment.appendChild(time)
-
-      this._winScreen.textContent = ''
-      this._winScreen.appendChild(fragment)
+      this._renderWinningScreenText()
       this._winScreen.classList.remove('hidden')
-      window.setTimeout(() => {
-        this._winScreen.classList.add('hidden')
-      }, 4000)
+      this._winScreen.focus()
     }
 
     /**
@@ -430,6 +468,33 @@ customElements.define('memory-game',
 
       this._memoryBoard.textContent = ''
       this._memoryBoard.appendChild(fragment)
+    }
+
+    /**
+     * Renders the result text that user sees when all tiles have matched.
+     */
+    _renderWinningScreenText () {
+      const fragment = document.createDocumentFragment()
+
+      const congratzText = document.createElement('h2')
+      congratzText.textContent = 'Good job!'
+      fragment.appendChild(congratzText)
+
+      const result = document.createElement('p')
+      result.textContent = `Attempts: ${this._attempts}`
+      fragment.appendChild(result)
+
+      const time = document.createElement('p')
+      time.textContent = `Time: ${this._countUpTimer.totalTime} s`
+      fragment.appendChild(time)
+
+      const explanation = document.createElement('p')
+      explanation.setAttribute('id', 'explanation')
+      explanation.textContent = '(Click or press enter to play again)'
+      fragment.appendChild(explanation)
+
+      this._winScreen.textContent = ''
+      this._winScreen.appendChild(fragment)
     }
 
     /**
