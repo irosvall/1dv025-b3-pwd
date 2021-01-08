@@ -268,6 +268,8 @@ customElements.define('memory-game',
      */
     attributeChangedCallback (name, oldValue, newValue) {
       if (newValue === 'easy' || newValue === 'medium' || newValue === 'hard') {
+        this._countUpTimer.stopTimer()
+        this._countUpTimer.resetTotalTime()
         this._resetFlippedCount()
         this._attempts = 0
         this._memoryBoard.classList.remove('gridEasy', 'gridMedium', 'gridHard')
@@ -363,6 +365,7 @@ customElements.define('memory-game',
     _allTilesMatched () {
       this.dispatchEvent(new CustomEvent('allTilesMatched'))
 
+      this._countUpTimer.stopTimer()
       const fragment = document.createDocumentFragment()
 
       const congratzText = document.createElement('h2')
@@ -373,12 +376,16 @@ customElements.define('memory-game',
       result.textContent = `Attempts: ${this._attempts}`
       fragment.appendChild(result)
 
+      const time = document.createElement('p')
+      time.textContent = `Time: ${this._countUpTimer.totalTime} s`
+      fragment.appendChild(time)
+
       this._winScreen.textContent = ''
       this._winScreen.appendChild(fragment)
       this._winScreen.classList.remove('hidden')
       window.setTimeout(() => {
         this._winScreen.classList.add('hidden')
-      }, 2000)
+      }, 4000)
     }
 
     /**
