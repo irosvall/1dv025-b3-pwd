@@ -361,6 +361,7 @@ customElements.define('memory-game',
       this._memoryBoard.removeEventListener('flipped', this._onFlipped)
       this._winScreen.removeEventListener('click', this._onWinScreenClick)
       this._winScreen.removeEventListener('keydown', this._onWinScreenKeydown)
+      this._countUpTimer.stopTimer()
     }
 
     /**

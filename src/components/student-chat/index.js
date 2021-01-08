@@ -145,6 +145,13 @@ customElements.define('student-chat',
        */
       this._nickname = this._persistentNicknameForm.nickname
 
+      /**
+       * The amount of old messages.
+       *
+       * @type {number}
+       */
+      this._oldMessagesAmount = 0
+
       /* ------------EVENT HANDLERS----------- */
 
       /**
@@ -191,11 +198,11 @@ customElements.define('student-chat',
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
-      this._setUp()
       this._persistentNicknameForm.addEventListener('nicknameSet', this._onNicknameSet)
       this._webSocket.addEventListener('message', this._onMessage)
       this._webSocket.addEventListener('open', this._onOpen)
       this._chatForm.addEventListener('submit', this._onSubmit)
+      this._setUp()
     }
 
     /**
@@ -207,6 +214,7 @@ customElements.define('student-chat',
       this._webSocket.removeEventListener('open', this._onOpen)
       this._chatForm.removeEventListener('submit', this._onSubmit)
       this._webSocket.close()
+      this._storeMessages()
     }
 
     /**
@@ -250,11 +258,66 @@ customElements.define('student-chat',
      * Sets up the DOM structur depending on if a nickname is set or not.
      */
     _setUp () {
+      this._renderStoredMessages()
       if (this._nickname === undefined) {
         this._persistentNicknameForm.classList.remove('hidden')
       } else {
         this._chat.classList.remove('hidden')
       }
+    }
+
+    /**
+     * Renders the old messages to the chat window from the local web storage.
+     */
+    _renderStoredMessages () {
+      if (window.localStorage.getItem('pwd-student-chat-messages')) {
+        const messages = JSON.parse(window.localStorage.getItem('pwd-student-chat-messages'))
+        this._oldMessagesAmount = messages.length
+
+        const fragment = document.createDocumentFragment()
+
+        for (const message of messages) {
+          const pElement = document.createElement('p')
+          pElement.textContent = message
+          fragment.appendChild(pElement)
+        }
+        fragment.appendChild(document.createElement('br'))
+
+        this._chatWindow.appendChild(fragment)
+      }
+    }
+
+    /**
+     * Updates the local web storage with the most recent messages up to 20 messages.
+     */
+    _storeMessages () {
+      const messagesNodeList = this._chatWindow.querySelectorAll('p')
+
+      if (messagesNodeList.length < 2) {
+        return
+      }
+
+      const messages = Array.from(messagesNodeList)
+        .map(element => element.textContent)
+
+      // Delete old messages.
+      messages.splice(0, this._oldMessagesAmount)
+
+      // If no new messages then the old messages from last session will stay till next session.
+      if (messages.length < 2) {
+        return
+      }
+
+      // Keep 21 messages if over 20 (21 to change the oldest to the date).
+      if (messages.length > 20) {
+        const difference = messages.length - 21
+        messages.splice(0, difference)
+      }
+
+      // Changes the first message to the current date.
+      messages[0] = `From: ${new Date().toISOString().slice(0, 10)}`
+
+      window.localStorage.setItem('pwd-student-chat-messages', JSON.stringify(messages))
     }
   }
 )

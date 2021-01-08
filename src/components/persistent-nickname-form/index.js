@@ -171,7 +171,7 @@ customElements.define('persistent-nickname-form',
     }
 
     /**
-     * Adds the nickname to the local storage.
+     * Adds the nickname to the local web storage.
      */
     _storeNickname () {
       window.localStorage.setItem('pwd-nickname', JSON.stringify(this._nickname))
