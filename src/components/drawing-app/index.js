@@ -92,6 +92,13 @@ customElements.define('drawing-app',
        */
       this._lineWidth = 3
 
+      /**
+       * The line cap style of the drawing stroke.
+       *
+       * @type {string}
+       */
+      this._lineCap = 'round'
+
       /* ------------EVENT HANDLERS----------- */
 
       /**
@@ -127,6 +134,7 @@ customElements.define('drawing-app',
       this._onMouseup = () => {
         if (this._isDrawing === true) {
           this._isDrawing = false
+          this._context.beginPath()
         }
       }
     }
@@ -150,19 +158,40 @@ customElements.define('drawing-app',
     }
 
     /**
-     * Draws a line(dot) on the canvas.
+     * Draws a line on the canvas following the mouse coordinates.
      *
      * @param {number} x - The mouse event's x-coordinate.
      * @param {number} y - The mouse event's y-coordinate.
      */
     _draw (x, y) {
-      this._context.beginPath()
-      this._context.strokeStyle = this._color
-      this._context.lineWidth = this._lineWidth
-      this._context.lineCap = 'round'
-      this._context.moveTo(x, y)
+      this._addDrawStyle()
       this._context.lineTo(x, y)
       this._context.stroke()
+      this._context.beginPath()
+      this._context.moveTo(x, y)
+    }
+
+    /**
+     * Draws dots on the canvas following the mouse coordinates.
+     *
+     * @param {number} x - The mouse event's x-coordinate.
+     * @param {number} y - The mouse event's y-coordinate.
+     */
+    _drawDots (x, y) {
+      this._addDrawStyle()
+      this._context.beginPath()
+      this._context.lineTo(x, y)
+      this._context.stroke()
+      this._context.moveTo(x, y)
+    }
+
+    /**
+     * Styles the canvas context by styles given by properties.
+     */
+    _addDrawStyle () {
+      this._context.strokeStyle = this._color
+      this._context.lineWidth = this._lineWidth
+      this._context.lineCap = this._lineCap
     }
   }
 )
