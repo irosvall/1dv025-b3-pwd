@@ -28,7 +28,9 @@ template.innerHTML = `
     }
   </style>
 
-  <div id="toolbar"></div>
+  <div id="toolbar">
+    <input type="color" id="colorPicker">
+  </div>
   <canvas width="550" height="380"></canvas>
 `
 
@@ -62,6 +64,13 @@ customElements.define('drawing-app',
        */
       this._canvas = this.shadowRoot.querySelector('canvas')
 
+      /**
+       * An input element of the type color.
+       *
+       * @type {HTMLElement}
+       */
+      this._colorPicker = this.shadowRoot.querySelector('#colorPicker')
+
       /* ------------OTHER PROPERTIES----------- */
 
       /**
@@ -83,7 +92,7 @@ customElements.define('drawing-app',
        *
        * @type {string}
        */
-      this._color = 'black'
+      this._color = '#000000'
 
       /**
        * The line width of the drawing stroke.
@@ -109,8 +118,10 @@ customElements.define('drawing-app',
        * @param {Event} event - The mousedown event.
        */
       this._onMousedown = event => {
-        this._isDrawing = true
-        this._draw(event.offsetX, event.offsetY)
+        if (event.button === 0) {
+          this._isDrawing = true
+          this._draw(event.offsetX, event.offsetY)
+        }
       }
 
       /**
@@ -137,6 +148,17 @@ customElements.define('drawing-app',
           this._context.beginPath()
         }
       }
+
+      /**
+       * Handles input events for when the user changes the color value.
+       *
+       * Changes the color property value to the new value.
+       * 
+       * @param {Event} event - The input event.
+       */
+      this._onColorInput = event => {
+        this._color = event.target.value
+      }
     }
 
     /**
@@ -146,6 +168,7 @@ customElements.define('drawing-app',
       this._canvas.addEventListener('mousedown', this._onMousedown)
       this._canvas.addEventListener('mousemove', this._onMousemove)
       this._canvas.addEventListener('mouseup', this._onMouseup)
+      this._colorPicker.addEventListener('input', this._onColorInput)
     }
 
     /**
@@ -155,6 +178,7 @@ customElements.define('drawing-app',
       this._canvas.removeEventListener('mousedown', this._onMousedown)
       this._canvas.removeEventListener('mousemove', this._onMousemove)
       this._canvas.removeEventListener('mouseup', this._onMouseup)
+      this._colorPicker.removeEventListener('input', this._onColorInput)
     }
 
     /**
