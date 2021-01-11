@@ -14,16 +14,17 @@ const template = document.createElement('template')
 template.innerHTML = `
   <style>
     textarea {
+      background-color:rgb(235, 251, 253);
       font-size: 1.2em;
-      padding: 0.25em 0.5em;
+      padding: 0.2em 0.5em;
       resize: none;
       font-family: inherit;
       width: 250px;
-      height: 1.2em;
+      height: 1.45em;
     }
 
     #chatWindow {
-      background-color: rgb(240, 239, 235);
+      background-color: rgb(254, 255, 255);
       box-sizing: border-box;
       padding: 0 5px;
       width: 332px;
@@ -45,7 +46,7 @@ template.innerHTML = `
     }
 
     #chatForm input {
-      background-color: rgb(165, 165, 141);
+      background-color:rgb(119, 224, 243);
       font-size: 1.2em;
       border-collapse: collapse;
     }

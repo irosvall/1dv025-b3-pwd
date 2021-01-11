@@ -25,6 +25,25 @@ const IMG_TEACUP_URL = (new URL('./images/teacup.png', import.meta.url)).href
 const template = document.createElement('template')
 template.innerHTML = `
   <style>
+    button {
+      background-color:rgb(252, 233, 245);
+      border: solid 1px rgba(0, 0, 0, 0.644);
+      border-radius: 5px;
+      padding: 3px 10px;
+      margin: 0 4px;
+      font-size: 1.2em;
+    }
+
+    #difficultyBar {
+      margin-left: 12px;
+      padding-top: 8px;
+    }
+
+    count-up-timer {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
     #container {
       background-color: rgb(255, 255, 255);
       position: relative;
@@ -57,14 +76,6 @@ template.innerHTML = `
       box-sizing: border-box;
       width: 430px;
       height: 430px;
-    }
-
-    #difficultyBar {
-      display: block;
-    }
-
-    #difficultyBar p {
-      display: inline;
     }
 
     #winScreen {
@@ -106,7 +117,6 @@ template.innerHTML = `
 
   <div id="container">
     <div id="difficultyBar">
-      <p>Difficulty: </p>
       <button id="easyButton">Easy</button>
       <button id="mediumButton">Medium</button>
       <button id="hardButton">Hard</button>
