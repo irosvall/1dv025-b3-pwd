@@ -152,6 +152,19 @@ customElements.define('student-chat',
        */
       this._oldMessagesAmount = 0
 
+      /**
+       * An object matching text representing smileys to its textbased smiley.
+       *
+       * @type {object}
+       */
+      this._smileys = {
+        ':)': `${String.fromCodePoint(0x1F60A)}`,
+        ':D': `${String.fromCodePoint(0x1F603)}`,
+        ':(': `${String.fromCodePoint(0x1F641)}`,
+        ':p': `${String.fromCodePoint(0x1F61B)}`,
+        ':o': `${String.fromCodePoint(0x1F62E)}`
+      }
+
       /* ------------EVENT HANDLERS----------- */
 
       /**
@@ -192,6 +205,20 @@ customElements.define('student-chat',
         event.preventDefault()
         this._sendMessage()
       }
+
+      /**
+       * Handles input events for when the user writes in the chat's textarea.
+       *
+       * Changes emoji-like characters to emojis.
+       */
+      this._onTextareaInput = () => {
+        this._chatFormTextarea.value = this._chatFormTextarea.value.replace(/(:|=|:-)+(\)|\(|D|P|p|O|o)/g, char => {
+          char = char.replace(/=|:-/, ':')
+          char = char.replace(/P/, 'p')
+          char = char.replace(/O/, 'o')
+          return this._smileys[char]
+        })
+      }
     }
 
     /**
@@ -202,6 +229,7 @@ customElements.define('student-chat',
       this._webSocket.addEventListener('message', this._onMessage)
       this._webSocket.addEventListener('open', this._onOpen)
       this._chatForm.addEventListener('submit', this._onSubmit)
+      this._chatFormTextarea.addEventListener('input', this._onTextareaInput)
       this._setUp()
     }
 
@@ -213,6 +241,7 @@ customElements.define('student-chat',
       this._webSocket.removeEventListener('message', this._onMessage)
       this._webSocket.removeEventListener('open', this._onOpen)
       this._chatForm.removeEventListener('submit', this._onSubmit)
+      this._chatFormTextarea.removeEventListener('input', this._onTextareaInput)
       this._webSocket.close()
       this._storeMessages()
     }
