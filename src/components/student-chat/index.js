@@ -23,6 +23,10 @@ template.innerHTML = `
       height: 1.45em;
     }
 
+    #chat {
+      position: relative;
+    }
+
     #chatWindow {
       background-color: rgb(254, 255, 255);
       box-sizing: border-box;
@@ -51,6 +55,13 @@ template.innerHTML = `
       border-collapse: collapse;
     }
 
+    #errorMessage {
+      position: absolute;
+      left: 3px;
+      top: 245px;
+      color: red;
+    }
+
     .hidden {
       display: none;
     }
@@ -64,6 +75,7 @@ template.innerHTML = `
   <persistent-nickname-form class="hidden"></persistent-nickname-form>
   <div id="chat" class="hidden">
     <div id="chatWindow"></div>
+    <p id="errorMessage" class="hidden">No connection, try restart.</p>
     <form id="chatForm">
       <label for="message" class="offScreen">Write your message here:</label>
       <textarea name="message" id="message"></textarea>
@@ -130,6 +142,13 @@ customElements.define('student-chat',
        */
       this._chatWindow = this.shadowRoot.querySelector('#chatWindow')
 
+      /**
+       * A p element displaying error messages.
+       *
+       * @type {HTMLElement}
+       */
+      this._errorMessage = this.shadowRoot.querySelector('#errorMessage')
+
       /* ------------OTHER PROPERTIES----------- */
 
       /**
@@ -189,15 +208,6 @@ customElements.define('student-chat',
       }
 
       /**
-       * Handles open events for the web socket server has established a connection.
-       *
-       * @param {Event} event - The open event.
-       */
-      this._onOpen = event => {
-        console.log(event)
-      }
-
-      /**
        * Handles submit events for when the user sends a message to the chat.
        *
        * @param {Event} event - The submit event.
@@ -220,6 +230,21 @@ customElements.define('student-chat',
           return this._smileys[char]
         })
       }
+
+      /**
+       * Handles keydown events for when the user press down keys in the chat's textarea.
+       *
+       * @param {Event} event - The keydown event.
+       */
+      this._onTextareaKeydown = event => {
+        if (event.code === 'Enter' &&
+          !event.shiftKey &&
+          !event.ctrlKey &&
+          !event.altKey &&
+          !event.metaKey) {
+          this._onSubmit(event)
+        }
+      }
     }
 
     /**
@@ -228,9 +253,9 @@ customElements.define('student-chat',
     connectedCallback () {
       this._persistentNicknameForm.addEventListener('nicknameSet', this._onNicknameSet)
       this._webSocket.addEventListener('message', this._onMessage)
-      this._webSocket.addEventListener('open', this._onOpen)
       this._chatForm.addEventListener('submit', this._onSubmit)
       this._chatFormTextarea.addEventListener('input', this._onTextareaInput)
+      this._chatFormTextarea.addEventListener('keydown', this._onTextareaKeydown)
       this._setUp()
     }
 
@@ -240,9 +265,9 @@ customElements.define('student-chat',
     disconnectedCallback () {
       this._persistentNicknameForm.removeEventListener('nicknameSet', this._onNicknameSet)
       this._webSocket.removeEventListener('message', this._onMessage)
-      this._webSocket.removeEventListener('open', this._onOpen)
       this._chatForm.removeEventListener('submit', this._onSubmit)
       this._chatFormTextarea.removeEventListener('input', this._onTextareaInput)
+      this._chatFormTextarea.removeEventListener('keydown', this._onTextareaKeydown)
       this._webSocket.close()
       this._storeMessages()
     }
@@ -274,12 +299,19 @@ customElements.define('student-chat',
         return
       }
 
-      this._webSocket.send(JSON.stringify({
-        type: 'message',
-        data: `${message}`,
-        username: `${this._nickname}`,
-        key: 'eDBE76deU7L0H9mEBgxUKVR0VCnq0XBd'
-      }))
+      if (this._webSocket.readyState === 1) {
+        this._webSocket.send(JSON.stringify({
+          type: 'message',
+          data: `${message}`,
+          username: `${this._nickname}`,
+          key: 'eDBE76deU7L0H9mEBgxUKVR0VCnq0XBd'
+        }))
+      } else {
+        this._errorMessage.classList.remove('hidden')
+        window.setTimeout(() => {
+          this._errorMessage.classList.add('hidden')
+        }, 5000)
+      }
 
       this._chatFormTextarea.value = ''
     }
