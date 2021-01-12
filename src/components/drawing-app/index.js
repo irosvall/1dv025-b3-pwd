@@ -5,6 +5,8 @@
  * @version 1.0.0
  */
 
+const IMG_LINE_WIDTH_URL = (new URL('./images/line-width-icon.png', import.meta.url)).href
+
 /**
  * Define template.
  */
@@ -12,6 +14,7 @@ const template = document.createElement('template')
 template.innerHTML = `
   <style>
     :host {
+      position: relative;
       display: grid;
       grid-template-columns: 50px auto;
       width: 600px;
@@ -19,8 +22,36 @@ template.innerHTML = `
       border: solid 1px rgb(87, 87, 87);
     }
 
+    .hidden {
+      display: none;
+    }
+
     #toolbar {
       background-color: rgb(248, 223, 195);
+    }
+
+    #previewCanvas {
+      border: solid 3px rgb(228, 167, 165);
+    }
+
+    #lineWidthButton {
+      background: url("${IMG_LINE_WIDTH_URL}");
+      background-size: cover;
+      cursor: pointer;
+      border: none;
+      width: 44px;
+      height: 36px;
+      margin-left: 3px;
+    }
+
+    #lineWidthRange {
+      color: rgb(248, 223, 195);
+      position: absolute;
+      top: 52px;
+      left: 55px;
+      margin: 0;
+      height: 40px;
+      width: 100px;
     }
 
     canvas {
@@ -29,9 +60,12 @@ template.innerHTML = `
   </style>
 
   <div id="toolbar">
+    <canvas id="previewCanvas" width="44" height="44"></canvas>
+    <button id="lineWidthButton"></button>
+    <input id="lineWidthRange" class="hidden" type="range" min="1" max="40" value="5">
     <input type="color" id="colorPicker">
   </div>
-  <canvas width="550" height="380"></canvas>
+  <canvas id="mainCanvas" width="550" height="380"></canvas>
 `
 
 /**
@@ -62,7 +96,14 @@ customElements.define('drawing-app',
        *
        * @type {HTMLElement}
        */
-      this._canvas = this.shadowRoot.querySelector('canvas')
+      this._canvas = this.shadowRoot.querySelector('#mainCanvas')
+
+      /**
+       * A canvas element to display the stroke style preview.
+       *
+       * @type {HTMLElement}
+       */
+      this._previewCanvas = this.shadowRoot.querySelector('#previewCanvas')
 
       /**
        * An input element of the type color.
@@ -71,14 +112,35 @@ customElements.define('drawing-app',
        */
       this._colorPicker = this.shadowRoot.querySelector('#colorPicker')
 
-      /* ------------OTHER PROPERTIES----------- */
-
       /**
-       * The rendering context of the canvas.
+       * An input element of the type range.
        *
        * @type {HTMLElement}
        */
+      this._lineWidthRange = this.shadowRoot.querySelector('#lineWidthRange')
+
+      /**
+       * An button element for receiving the line width range.
+       *
+       * @type {HTMLElement}
+       */
+      this._lineWidthButton = this.shadowRoot.querySelector('#lineWidthButton')
+
+      /* ------------OTHER PROPERTIES----------- */
+
+      /**
+       * The rendering context of the canvas for drawing.
+       *
+       * @type {CanvasRenderingContext2D}
+       */
       this._context = this._canvas.getContext('2d')
+
+      /**
+       * The rendering context of the stroke style preview canvas.
+       *
+       * @type {CanvasRenderingContext2D}
+       */
+      this._previewContext = this._previewCanvas.getContext('2d')
 
       /**
        * A Boolean indicating whether or not the user is drawing.
@@ -99,7 +161,7 @@ customElements.define('drawing-app',
        *
        * @type {number}
        */
-      this._lineWidth = 3
+      this._lineWidth = 5
 
       /**
        * The line cap style of the drawing stroke.
@@ -120,7 +182,7 @@ customElements.define('drawing-app',
       this._onMousedown = event => {
         if (event.button === 0) {
           this._isDrawing = true
-          this._draw(event.offsetX, event.offsetY)
+          this._draw(this._context, event.offsetX, event.offsetY)
         }
       }
 
@@ -133,7 +195,7 @@ customElements.define('drawing-app',
        */
       this._onMousemove = event => {
         if (this._isDrawing === true) {
-          this._draw(event.offsetX, event.offsetY)
+          this._draw(this._context, event.offsetX, event.offsetY)
         }
       }
 
@@ -153,11 +215,33 @@ customElements.define('drawing-app',
        * Handles input events for when the user changes the color value.
        *
        * Changes the color property value to the new value.
-       * 
+       *
        * @param {Event} event - The input event.
        */
       this._onColorInput = event => {
         this._color = event.target.value
+        this._updatePreview()
+      }
+
+      /**
+       * Handles click events for when the user clicks the line width button.
+       *
+       * Toggles the line Width range.
+       */
+      this._onlineWidthButtonClick = () => {
+        this._lineWidthRange.classList.toggle('hidden')
+      }
+
+      /**
+       * Handles input events for when the user changes the line Width value.
+       *
+       * Changes the line Width property value to the new value.
+       *
+       * @param {Event} event - The input event.
+       */
+      this._onLineWidthInput = event => {
+        this._lineWidth = event.target.value
+        this._updatePreview()
       }
     }
 
@@ -165,10 +249,15 @@ customElements.define('drawing-app',
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
+      // Shows the default stroke style in the preview.
+      this._updatePreview()
+
       this._canvas.addEventListener('mousedown', this._onMousedown)
       this._canvas.addEventListener('mousemove', this._onMousemove)
       this._canvas.addEventListener('mouseup', this._onMouseup)
       this._colorPicker.addEventListener('input', this._onColorInput)
+      this._lineWidthButton.addEventListener('click', this._onlineWidthButtonClick)
+      this._lineWidthRange.addEventListener('input', this._onLineWidthInput)
     }
 
     /**
@@ -179,43 +268,60 @@ customElements.define('drawing-app',
       this._canvas.removeEventListener('mousemove', this._onMousemove)
       this._canvas.removeEventListener('mouseup', this._onMouseup)
       this._colorPicker.removeEventListener('input', this._onColorInput)
+      this._lineWidthButton.removeEventListener('click', this._onlineWidthButtonClick)
+      this._lineWidthRange.removeEventListener('input', this._onLineWidthInput)
     }
 
     /**
+     * Inspiration on how to draw with canvas gathered from:
+     * https://www.youtube.com/watch?v=3GqUM4mEYKA [visited: 2021-01-10]
+     *
      * Draws a line on the canvas following the mouse coordinates.
      *
+     * @param {CanvasRenderingContext2D} context - The canvas rendering context.
      * @param {number} x - The mouse event's x-coordinate.
      * @param {number} y - The mouse event's y-coordinate.
      */
-    _draw (x, y) {
-      this._addDrawStyle()
-      this._context.lineTo(x, y)
-      this._context.stroke()
-      this._context.beginPath()
-      this._context.moveTo(x, y)
+    _draw (context, x, y) {
+      this._addDrawStyle(context)
+      context.lineTo(x, y)
+      context.stroke()
+      context.beginPath()
+      context.moveTo(x, y)
     }
 
     /**
      * Draws dots on the canvas following the mouse coordinates.
      *
+     * @param {CanvasRenderingContext2D} context - The canvas rendering context.
      * @param {number} x - The mouse event's x-coordinate.
      * @param {number} y - The mouse event's y-coordinate.
      */
-    _drawDots (x, y) {
-      this._addDrawStyle()
-      this._context.beginPath()
-      this._context.lineTo(x, y)
-      this._context.stroke()
-      this._context.moveTo(x, y)
+    _drawDots (context, x, y) {
+      this._addDrawStyle(context)
+      context.beginPath()
+      context.lineTo(x, y)
+      context.stroke()
+      context.moveTo(x, y)
     }
 
     /**
      * Styles the canvas context by styles given by properties.
+     *
+     * @param {CanvasRenderingContext2D} context - The canvas rendering context.
      */
-    _addDrawStyle () {
-      this._context.strokeStyle = this._color
-      this._context.lineWidth = this._lineWidth
-      this._context.lineCap = this._lineCap
+    _addDrawStyle (context) {
+      context.strokeStyle = this._color
+      context.lineWidth = this._lineWidth
+      context.lineCap = this._lineCap
+    }
+
+    /**
+     * Draws out a preview of the current draw stroke.
+     */
+    _updatePreview() {
+      this._previewContext.clearRect(0, 0, 44, 44)
+      this._draw(this._previewContext, 22, 22)
     }
   }
 )
