@@ -373,7 +373,7 @@ customElements.define('drawing-app',
 
       this._canvas.addEventListener('mousedown', this._onMousedown)
       this._canvas.addEventListener('mousemove', this._onMousemove)
-      this._canvas.addEventListener('mouseup', this._onMouseup)
+      document.addEventListener('mouseup', this._onMouseup)
       this._lineCapButtons.addEventListener('click', this._onLineCapButtonsClick)
       this._lineWidthButton.addEventListener('click', this._onLineWidthButtonClick)
       this._lineWidthRange.addEventListener('input', this._onLineWidthInput)
@@ -387,7 +387,7 @@ customElements.define('drawing-app',
     disconnectedCallback () {
       this._canvas.removeEventListener('mousedown', this._onMousedown)
       this._canvas.removeEventListener('mousemove', this._onMousemove)
-      this._canvas.removeEventListener('mouseup', this._onMouseup)
+      document.removeEventListener('mouseup', this._onMouseup)
       this._lineCapButtons.removeEventListener('click', this._onLineCapButtonsClick)
       this._lineWidthButton.removeEventListener('click', this._onLineWidthButtonClick)
       this._lineWidthRange.removeEventListener('input', this._onLineWidthInput)

@@ -192,8 +192,11 @@ customElements.define('pwd-window',
       this._onMousemove = event => {
         if (this._isDraging === true) {
           // Stops moving the element if mouse leaves the screen.
-          if (event.pageX <= 2 || event.pageX >= document.documentElement.clientWidth || event.pageY <= 2 || event.pageY >= document.documentElement.clientHeight) {
-            this._isDraging = false
+          if (event.pageX < 1 ||
+              event.pageX >= document.documentElement.clientWidth ||
+              event.pageY < 1 ||
+              event.pageY >= document.documentElement.clientHeight) {
+            this._stopDragging()
             return
           }
 
@@ -213,15 +216,9 @@ customElements.define('pwd-window',
       /**
        * Handles mouseup events for when the user releases
        * the mouse button from the window's header.
-       *
-       * Resets the mouse position and stops the element from moving.
        */
       this._onMouseup = () => {
-        if (this._isDraging === true) {
-          this._positionX = 0
-          this._positionY = 0
-          this._isDraging = false
-        }
+        this._stopDragging()
       }
 
       /**
@@ -274,8 +271,8 @@ customElements.define('pwd-window',
       this._window.focus()
       this._window.addEventListener('mousedown', this._onWindowMousedown)
       this._draggable.addEventListener('mousedown', this._onMousedown)
-      this._draggable.addEventListener('mousemove', this._onMousemove)
-      this._draggable.addEventListener('mouseup', this._onMouseup)
+      document.addEventListener('mousemove', this._onMousemove)
+      document.addEventListener('mouseup', this._onMouseup)
       this._closeButton.addEventListener('click', this._onClickClose)
       this._closeButton.addEventListener('keydown', this._onKeydownClose)
     }
@@ -286,8 +283,8 @@ customElements.define('pwd-window',
     disconnectedCallback () {
       this._window.removeEventListener('mousedown', this._onWindowMousedown)
       this._draggable.removeEventListener('mousedown', this._onMousedown)
-      this._draggable.removeEventListener('mousemove', this._onMousemove)
-      this._draggable.removeEventListener('mouseup', this._onMouseup)
+      document.removeEventListener('mousemove', this._onMousemove)
+      document.removeEventListener('mouseup', this._onMouseup)
       this._closeButton.removeEventListener('click', this._onClickClose)
       this._closeButton.removeEventListener('keydown', this._onKeydownClose)
     }
@@ -337,6 +334,18 @@ customElements.define('pwd-window',
       })
 
       this._window.style.zIndex = this._zIndex
+    }
+
+    /**
+     * Resets the mouse position and stops the element from moving.
+     */
+    _stopDragging () {
+      if (this._isDraging === true) {
+        this._positionX = 0
+        this._positionY = 0
+        this._isDraging = false
+        this._keepInsideBrowserWindow()
+      }
     }
   }
 )
