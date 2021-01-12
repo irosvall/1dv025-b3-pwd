@@ -246,7 +246,7 @@ customElements.define('pwd-window',
     }
 
     /**
-     * Watches the attributes "inactive" and "hidden" for changes on the element.
+     * Watches the attribute "name" for changes on the element.
      *
      * @returns {string[]} An array of the observed attribute's names.
      */

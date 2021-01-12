@@ -5,7 +5,7 @@
  * @version 1.0.0
  */
 
-const backgroundImage = (new URL('./images/lnu-symbol.png', import.meta.url)).href
+const IMG_LNU_BACKGROUND = (new URL('./images/lnu-symbol.png', import.meta.url)).href
 
 /**
  * Define template.
@@ -65,7 +65,7 @@ template.innerHTML = `
     }
 
     #back {
-      background: rgb(216, 252, 252) no-repeat center/50% url("${backgroundImage}") ;
+      background: rgb(216, 252, 252) no-repeat center/50% url("${IMG_LNU_BACKGROUND}") ;
     }
 
     #front {

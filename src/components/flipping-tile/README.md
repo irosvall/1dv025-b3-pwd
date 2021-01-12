@@ -39,7 +39,7 @@ The back element (div) is styleable using the part `back`.
 ## Example
 
 ```html
-<flipping-tile hidden>
+<flipping-tile inactive>
     <img src="./images/octopus.png" alt="octopus">
 </flipping-tile>
 ```

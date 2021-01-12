@@ -99,7 +99,7 @@ customElements.define('pwd-icon',
     }
 
     /**
-     * Watches the attributes "inactive" and "hidden" for changes on the element.
+     * Watches the attributes "app" and "title" for changes on the element.
      *
      * @returns {string[]} An array of the observed attribute's names.
      */
