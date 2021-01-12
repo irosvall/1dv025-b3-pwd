@@ -16,6 +16,7 @@ const template = document.createElement('template')
 template.innerHTML = `
   <style>
     :host {
+      background-color: white;
       position: relative;
       display: grid;
       grid-template-columns: 50px auto;
@@ -41,7 +42,7 @@ template.innerHTML = `
     }
 
     #previewCanvas {
-      border: solid 3px rgb(228, 167, 165);
+      margin: 3px;
     }
 
     #lineCapButtons {
@@ -70,8 +71,8 @@ template.innerHTML = `
       height: 20px;
     }
     
-    #roundLineCapButton:hover, #roundLineCapButton:active, 
-    #squareLineCapButton:hover, #squareLineCapButton:active  {
+    #roundLineCapButton:hover, #roundLineCapButton:active,
+    #squareLineCapButton:hover, #squareLineCapButton:active {
       background-color: rgb(228, 167, 165);
     }
 
@@ -81,13 +82,14 @@ template.innerHTML = `
       border: none;
       width: 44px;
       height: 36px;
+      margin-top: 5px;
       margin-left: 3px;
     }
 
     #lineWidthRange {
       color: rgb(248, 223, 195);
       position: absolute;
-      top: 72px;
+      top: 77px;
       left: 55px;
       margin: 0;
       height: 40px;
@@ -95,8 +97,21 @@ template.innerHTML = `
     }
 
     #colorPicker {
-      height: 44px;
+      margin-top: 188px;
+      height: 35px;
       cursor: pointer;
+    }
+
+    #clearButton {
+      background-color: rgba(252, 74, 74, 0.918);
+      margin-top: 11px;
+      font-weight: 700;
+      font-size: 0.9em;
+      padding: 2px 5px;
+    }
+
+    #clearButton:hover, #clearButton:active, #clearButton:focus {
+      background-color: rgb(255, 35, 35);
     }
   </style>
 
@@ -395,21 +410,6 @@ customElements.define('drawing-app',
       context.lineTo(x, y)
       context.stroke()
       context.beginPath()
-      context.moveTo(x, y)
-    }
-
-    /**
-     * Draws dots on the canvas following the mouse coordinates.
-     *
-     * @param {CanvasRenderingContext2D} context - The canvas rendering context.
-     * @param {number} x - The mouse event's x-coordinate.
-     * @param {number} y - The mouse event's y-coordinate.
-     */
-    _drawDots (context, x, y) {
-      this._addDrawStyle(context)
-      context.beginPath()
-      context.lineTo(x, y)
-      context.stroke()
       context.moveTo(x, y)
     }
 
