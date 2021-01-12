@@ -22,6 +22,10 @@ template.innerHTML = `
       border: solid 1px rgb(87, 87, 87);
     }
 
+    canvas {
+      background-color: white;
+    }
+
     .hidden {
       display: none;
     }
@@ -54,8 +58,8 @@ template.innerHTML = `
       width: 100px;
     }
 
-    canvas {
-      background-color: white;
+    #colorPicker {
+      height: 44px;
     }
   </style>
 
@@ -63,7 +67,8 @@ template.innerHTML = `
     <canvas id="previewCanvas" width="44" height="44"></canvas>
     <button id="lineWidthButton"></button>
     <input id="lineWidthRange" class="hidden" type="range" min="1" max="40" value="5">
-    <input type="color" id="colorPicker">
+    <input id="colorPicker" type="color">
+    <button id="clearButton">Clear</button>
   </div>
   <canvas id="mainCanvas" width="550" height="380"></canvas>
 `
@@ -125,6 +130,13 @@ customElements.define('drawing-app',
        * @type {HTMLElement}
        */
       this._lineWidthButton = this.shadowRoot.querySelector('#lineWidthButton')
+
+      /**
+       * An button element for clearing the drawing canvas.
+       *
+       * @type {HTMLElement}
+       */
+      this._clearButton = this.shadowRoot.querySelector('#clearButton')
 
       /* ------------OTHER PROPERTIES----------- */
 
@@ -243,6 +255,15 @@ customElements.define('drawing-app',
         this._lineWidth = event.target.value
         this._updatePreview()
       }
+
+      /**
+       * Handles click events for when the user clicks the 'clear' button.
+       *
+       * Clears the drawing canvas.
+       */
+      this._onClearButtonClick = () => {
+        this._context.clearRect(0, 0, 550, 380)
+      }
     }
 
     /**
@@ -258,6 +279,7 @@ customElements.define('drawing-app',
       this._colorPicker.addEventListener('input', this._onColorInput)
       this._lineWidthButton.addEventListener('click', this._onlineWidthButtonClick)
       this._lineWidthRange.addEventListener('input', this._onLineWidthInput)
+      this._clearButton.addEventListener('click', this._onClearButtonClick)
     }
 
     /**
@@ -270,6 +292,7 @@ customElements.define('drawing-app',
       this._colorPicker.removeEventListener('input', this._onColorInput)
       this._lineWidthButton.removeEventListener('click', this._onlineWidthButtonClick)
       this._lineWidthRange.removeEventListener('input', this._onLineWidthInput)
+      this._clearButton.removeEventListener('click', this._onClearButtonClick)
     }
 
     /**
@@ -319,7 +342,7 @@ customElements.define('drawing-app',
     /**
      * Draws out a preview of the current draw stroke.
      */
-    _updatePreview() {
+    _updatePreview () {
       this._previewContext.clearRect(0, 0, 44, 44)
       this._draw(this._previewContext, 22, 22)
     }
