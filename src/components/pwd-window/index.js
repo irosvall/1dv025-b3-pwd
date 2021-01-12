@@ -156,27 +156,9 @@ customElements.define('pwd-window',
 
       /**
        * Handles mousedown events for when the user clicks within the window.
-       *
-       * Gives the window element highest z-index to appear at the top.
-       *
        */
       this._onWindowMousedown = () => {
-        const windowElements = document.querySelectorAll('pwd-window')
-
-        if (windowElements.length === 1) {
-          return
-        }
-
-        // Gets the z-index of every window element, and give pressed window highest index.
-        windowElements.forEach(element => {
-          const zIndex = Number(document.defaultView.getComputedStyle(element._window).getPropertyValue('z-index'))
-
-          if (zIndex >= this._zIndex) {
-            this._zIndex = zIndex + 1
-          }
-        })
-
-        this._window.style.zIndex = this._zIndex
+        this._recieveHighestZIndex()
       }
 
       /**
@@ -287,6 +269,7 @@ customElements.define('pwd-window',
      * Called after the element is inserted into the DOM.
      */
     connectedCallback () {
+      this._recieveHighestZIndex()
       // Add focus to window for keyboard users.
       this._window.focus()
       this._window.addEventListener('mousedown', this._onWindowMousedown)
@@ -332,6 +315,28 @@ customElements.define('pwd-window',
         bubbles: true
       }))
       this.remove()
+    }
+
+    /**
+     * Gives the window element highest z-index to appear at the top.
+     */
+    _recieveHighestZIndex () {
+      const windowElements = document.querySelectorAll('pwd-window')
+
+      if (windowElements.length === 1) {
+        return
+      }
+
+      // Gets the z-index of every window element, and give pressed window highest index.
+      windowElements.forEach(element => {
+        const zIndex = Number(document.defaultView.getComputedStyle(element._window).getPropertyValue('z-index'))
+
+        if (zIndex >= this._zIndex) {
+          this._zIndex = zIndex + 1
+        }
+      })
+
+      this._window.style.zIndex = this._zIndex
     }
   }
 )
