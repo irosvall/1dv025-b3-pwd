@@ -6,6 +6,8 @@
  */
 
 const IMG_LINE_WIDTH_URL = (new URL('./images/line-width-icon.png', import.meta.url)).href
+const IMG_ROUND_STROKE_URL = (new URL('./images/round-stroke-icon.png', import.meta.url)).href
+const IMG_SQUARE_STROKE_URL = (new URL('./images/square-stroke-icon.png', import.meta.url)).href
 
 /**
  * Define template.
@@ -20,6 +22,10 @@ template.innerHTML = `
       width: 600px;
       height: 380px;
       border: solid 1px rgb(87, 87, 87);
+    }
+
+    button {
+      cursor: pointer;
     }
 
     canvas {
@@ -38,10 +44,40 @@ template.innerHTML = `
       border: solid 3px rgb(228, 167, 165);
     }
 
+    #lineCapButtons {
+      display: flex;
+      margin-left: 4px;
+      gap: 2px;
+    }
+
+    #lineCapButtons .active {
+      background-color: rgb(228, 167, 165);
+    }
+
+    #roundLineCapButton {
+      background: url("${IMG_ROUND_STROKE_URL}");
+    }
+
+    #squareLineCapButton {
+      background: url("${IMG_SQUARE_STROKE_URL}");
+    }
+
+    #roundLineCapButton, #squareLineCapButton {
+      display: inline-block;
+      background-size: cover;
+      border: none;
+      width: 20px;
+      height: 20px;
+    }
+    
+    #roundLineCapButton:hover, #roundLineCapButton:active, 
+    #squareLineCapButton:hover, #squareLineCapButton:active  {
+      background-color: rgb(228, 167, 165);
+    }
+
     #lineWidthButton {
       background: url("${IMG_LINE_WIDTH_URL}");
       background-size: cover;
-      cursor: pointer;
       border: none;
       width: 44px;
       height: 36px;
@@ -51,7 +87,7 @@ template.innerHTML = `
     #lineWidthRange {
       color: rgb(248, 223, 195);
       position: absolute;
-      top: 52px;
+      top: 72px;
       left: 55px;
       margin: 0;
       height: 40px;
@@ -60,11 +96,16 @@ template.innerHTML = `
 
     #colorPicker {
       height: 44px;
+      cursor: pointer;
     }
   </style>
 
   <div id="toolbar">
     <canvas id="previewCanvas" width="44" height="44"></canvas>
+    <div id="lineCapButtons">
+      <button id="roundLineCapButton" class="active"></button>
+      <button id="squareLineCapButton"></button>
+    </div>
     <button id="lineWidthButton"></button>
     <input id="lineWidthRange" class="hidden" type="range" min="1" max="40" value="5">
     <input id="colorPicker" type="color">
@@ -125,18 +166,39 @@ customElements.define('drawing-app',
       this._lineWidthRange = this.shadowRoot.querySelector('#lineWidthRange')
 
       /**
-       * An button element for receiving the line width range.
+       * A button element for receiving the line width range.
        *
        * @type {HTMLElement}
        */
       this._lineWidthButton = this.shadowRoot.querySelector('#lineWidthButton')
 
       /**
-       * An button element for clearing the drawing canvas.
+       * A button element for clearing the drawing canvas.
        *
        * @type {HTMLElement}
        */
       this._clearButton = this.shadowRoot.querySelector('#clearButton')
+
+      /**
+       * A div element containing the buttons to change the line cap.
+       *
+       * @type {HTMLElement}
+       */
+      this._lineCapButtons = this.shadowRoot.querySelector('#lineCapButtons')
+
+      /**
+       * A button element for changing the line cap to 'round'.
+       *
+       * @type {HTMLElement}
+       */
+      this._roundLineCapButton = this.shadowRoot.querySelector('#roundLineCapButton')
+
+      /**
+       * A button element for changing the line cap to 'square'.
+       *
+       * @type {HTMLElement}
+       */
+      this._squareLineCapButton = this.shadowRoot.querySelector('#squareLineCapButton')
 
       /* ------------OTHER PROPERTIES----------- */
 
@@ -236,18 +298,39 @@ customElements.define('drawing-app',
       }
 
       /**
+       * Handles click events for when the user clicks on line cap buttons.
+       *
+       * Changes the line cap property value to the new value.
+       *
+       * @param {Event} event - The click event.
+       */
+      this._onLineCapButtonsClick = event => {
+        console.log(event.target)
+        if (event.target === this._roundLineCapButton) {
+          this._lineCap = 'round'
+          this._roundLineCapButton.classList.add('active')
+          this._squareLineCapButton.classList.remove('active')
+        } else if (event.target === this._squareLineCapButton) {
+          this._lineCap = 'square'
+          this._squareLineCapButton.classList.add('active')
+          this._roundLineCapButton.classList.remove('active')
+        }
+        this._updatePreview()
+      }
+
+      /**
        * Handles click events for when the user clicks the line width button.
        *
        * Toggles the line Width range.
        */
-      this._onlineWidthButtonClick = () => {
+      this._onLineWidthButtonClick = () => {
         this._lineWidthRange.classList.toggle('hidden')
       }
 
       /**
-       * Handles input events for when the user changes the line Width value.
+       * Handles input events for when the user changes the line width value.
        *
-       * Changes the line Width property value to the new value.
+       * Changes the line width property value to the new value.
        *
        * @param {Event} event - The input event.
        */
@@ -276,9 +359,10 @@ customElements.define('drawing-app',
       this._canvas.addEventListener('mousedown', this._onMousedown)
       this._canvas.addEventListener('mousemove', this._onMousemove)
       this._canvas.addEventListener('mouseup', this._onMouseup)
-      this._colorPicker.addEventListener('input', this._onColorInput)
-      this._lineWidthButton.addEventListener('click', this._onlineWidthButtonClick)
+      this._lineCapButtons.addEventListener('click', this._onLineCapButtonsClick)
+      this._lineWidthButton.addEventListener('click', this._onLineWidthButtonClick)
       this._lineWidthRange.addEventListener('input', this._onLineWidthInput)
+      this._colorPicker.addEventListener('input', this._onColorInput)
       this._clearButton.addEventListener('click', this._onClearButtonClick)
     }
 
@@ -289,9 +373,10 @@ customElements.define('drawing-app',
       this._canvas.removeEventListener('mousedown', this._onMousedown)
       this._canvas.removeEventListener('mousemove', this._onMousemove)
       this._canvas.removeEventListener('mouseup', this._onMouseup)
-      this._colorPicker.removeEventListener('input', this._onColorInput)
-      this._lineWidthButton.removeEventListener('click', this._onlineWidthButtonClick)
+      this._lineCapButtons.removeEventListener('click', this._onLineCapButtonsClick)
+      this._lineWidthButton.removeEventListener('click', this._onLineWidthButtonClick)
       this._lineWidthRange.removeEventListener('input', this._onLineWidthInput)
+      this._colorPicker.removeEventListener('input', this._onColorInput)
       this._clearButton.removeEventListener('click', this._onClearButtonClick)
     }
 
