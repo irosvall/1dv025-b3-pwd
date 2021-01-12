@@ -50,9 +50,14 @@ template.innerHTML = `
     }
 
     #chatForm input {
-      background-color:rgb(119, 224, 243);
+      background-color: rgb(119, 224, 243);
       font-size: 1.2em;
       border-collapse: collapse;
+      cursor: pointer;
+    }
+
+    #chatForm input:hover, #chatForm input:active {
+      background-color: rgb(156, 229, 241);
     }
 
     #errorMessage {

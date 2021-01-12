@@ -12,12 +12,16 @@ const template = document.createElement('template')
 template.innerHTML = `
   <style>
     #nicknameForm {
+      background-color: white;
+      width: 332px;
+      height: 317px;
       text-align: center;
     }
 
     #nicknameForm label {
       display: inline-block;
-      font-size: 1.25em;
+      margin-top: 58px;
+      font-size: 1.3em;
       padding-bottom: 0.7em;
     }
     #nicknameForm input {
@@ -31,14 +35,17 @@ template.innerHTML = `
     }
 
     #submitNickname input {
-      color: white;
-      background-color: rgb(165, 165, 141);
+      background-color: rgb(119, 224, 243);
       font-size: 1.5em;
       font-weight: bold;
       margin-top: 2em;
       padding: 0.5em 1em;
       cursor: pointer;
       border-radius: 10px;
+    }
+
+    #submitNickname input:hover, #submitNickname input:active {
+      background-color: rgb(156, 229, 241);
     }
 
     #errorMessage {
@@ -48,7 +55,7 @@ template.innerHTML = `
 
   <form id="nicknameForm">
     <div id="nicknameDiv">
-      <label for="nicknameInput">Choose your nickname that other students will see:</label>
+      <label for="nicknameInput">Choose your nickname:</label>
       <input id="nicknameInput" type="text" placeholder="Write your nickname here" autocomplete="off" autofocus>
       <p id="errorMessage"></p>
      </div>
