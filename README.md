@@ -1,5 +1,9 @@
 # Personal Web Desktop (PWD)
 
+This application was a project I made as a part of my studies at Linnaeus University, completed 2021-01-12.
+
+## The assignment description
+
 ## Introduction
 
 In this examination assignment, you will focus on building a single page application (SPA) with chat integration against a web socket server. The backend (server-side code) of this assignment will be given, and your assignment is to write the client-side code.
